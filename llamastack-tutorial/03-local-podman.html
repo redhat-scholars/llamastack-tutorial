@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Local Development with Podman :: LlamaStack Tutorial</title>
+    <link rel="canonical" href="https://redhat-scholars.github.io/course-template/llamastack-tutorial/03-local-podman.html">
+    <link rel="prev" href="02-local-docker.html">
+    <link rel="next" href="04-podman-desktop.html">
+    <meta name="generator" content="Antora 3.0.0">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://developers.redhat.com" target="_blank"><img src="../_/img/RHDLogo.svg" height="40px" alt="Red Hat Developer Program"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="https://redhat-scholars.github.io/course-template">LlamaStack Tutorial</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://developers.redhat.com/ebooks/" target="_blank">Books</a>
+        <a class="navbar-item" href="https://developers.redhat.com/cheatsheets/" target="_blank">Cheat Sheets</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">More Tutorials</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/kubernetes-tutorial/" target="_blank">Kubernetes</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/istio-tutorial/" target="_blank">Istio</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/quarkus-tutorial/" target="_blank">Quarkus</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/knative-tutorial/" target="_blank">Knative</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/tekton-tutorial/" target="_blank">Tekton</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="llamastack-tutorial" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html"></a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="01-introduction.html">1. Introduction</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#overview">LlamaStack Overview</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#architecture">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#prerequisites">Prerequisites</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="02-local-docker.html">2. Local Development with Docker</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#setup">Docker Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#configuration">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#testing">Testing Your Setup</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="03-local-podman.html">3. Local Development with Podman</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#setup">Podman Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#rootless-containers">Rootless Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#systemd-integration">Systemd Integration</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="04-podman-desktop.html">4. Podman Desktop</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#setup">Podman Desktop Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#gui">GUI Management</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#monitoring">Monitoring and Debugging</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#extensions">Extensions and Integrations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="05-kubernetes.html">5. Kubernetes Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#prerequisites">Prerequisites</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#manifests">Kubernetes Manifests</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#deployment">Production Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#scaling">Scaling and Performance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#monitoring">Monitoring and Observability</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="06-openshift.html">6. OpenShift Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#setup">OpenShift Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#deployment">Enterprise Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#security-compliance">Security and Compliance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#operators">OpenShift Operators</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#gitops">GitOps with OpenShift GitOps</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">LlamaStack Tutorial</a></li>
+    <li><a href="03-local-podman.html">3. Local Development with Podman</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/redhat-scholars/llamastack-tutorial/edit/master/documentation/modules/ROOT/pages/03-local-podman.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Local Development with Podman</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Learn how to set up and run LlamaStack locally using Podman, a daemonless container engine that&#8217;s compatible with Docker.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="setup"><a class="anchor" href="#setup"></a>Podman Setup</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="install-podman"><a class="anchor" href="#install-podman"></a>Installing Podman</h3>
+<div class="paragraph">
+<p>Podman is a daemonless, rootless container engine that provides a Docker-compatible CLI experience.</p>
+</div>
+<div class="tabset is-loading">
+<div class="ulist tabs">
+<ul>
+<li>
+<p><a id="tabset1_linux"></a>Linux</p>
+</li>
+<li>
+<p><a id="tabset1_macos"></a>macOS</p>
+</li>
+<li>
+<p><a id="tabset1_windows"></a>Windows</p>
+</li>
+</ul>
+</div>
+<div class="content">
+<div class="tab-pane" aria-labelledby="tabset1_linux">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Ubuntu/Debian
+sudo apt update
+sudo apt install podman podman-compose
+
+# RHEL/CentOS/Fedora
+sudo dnf install podman podman-compose
+
+# Arch Linux
+sudo pacman -S podman podman-compose
+
+# Configure for rootless operation
+echo $USER:10000:5000 | sudo tee /etc/subuid
+echo $USER:10000:5000 | sudo tee /etc/subgid</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_macos">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Install using Homebrew
+brew install podman
+
+# Initialize Podman machine (required on macOS)
+podman machine init
+podman machine start</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_windows">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Install using Chocolatey
+choco install podman-desktop
+
+# Or download from GitHub releases
+# <a href="https://github.com/containers/podman/releases" class="bare">https://github.com/containers/podman/releases</a></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="verify-installation"><a class="anchor" href="#verify-installation"></a>Verify Installation</h3>
+<div class="paragraph">
+<p>Check that Podman is working correctly:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman --version
+podman-compose --version
+
+# Test container run
+podman run hello-world
+
+# Check system information
+podman system info</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="docker-compatibility"><a class="anchor" href="#docker-compatibility"></a>Docker Compatibility</h3>
+<div class="paragraph">
+<p>Podman provides Docker-compatible commands. You can create an alias for seamless migration:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Add to your shell profile (~/.bashrc, ~/.zshrc)
+alias docker=podman
+alias docker-compose=podman-compose
+
+# Or use the Docker API compatibility
+systemctl --user enable --now podman.socket
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="running"><a class="anchor" href="#running"></a>Running LlamaStack</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="podman-compose"><a class="anchor" href="#podman-compose"></a>Using Podman Compose</h3>
+<div class="paragraph">
+<p>Create the same <code>docker-compose.yml</code> file as in the Docker tutorial, but run it with Podman:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">version: '3.8'
+
+services:
+  llamastack:
+    image: llamastack/llamastack:latest
+    ports:
+      - "11434:11434"
+    environment:
+      - LLAMASTACK_PORT=11434
+      - LLAMASTACK_HOST=0.0.0.0
+    volumes:
+      - llamastack_data:/app/data
+      - ./config:/app/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  llamastack_data:
+  redis_data:</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Start with Podman Compose:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Start services
+podman-compose up -d
+
+# View logs
+podman-compose logs -f llamastack
+
+# Check status
+podman-compose ps</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="manual-pods"><a class="anchor" href="#manual-pods"></a>Manual Pod Management</h3>
+<div class="paragraph">
+<p>Podman&#8217;s unique feature is its pod concept, similar to Kubernetes pods:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Create a pod
+podman pod create --name llamastack-pod -p 11434:11434 -p 6379:6379
+
+# Run Redis in the pod
+podman run -d --pod llamastack-pod \
+  --name redis \
+  -v redis_data:/data \
+  redis:7-alpine
+
+# Run LlamaStack in the pod
+podman run -d --pod llamastack-pod \
+  --name llamastack \
+  -v llamastack_data:/app/data \
+  -v ./config:/app/config \
+  -e LLAMASTACK_PORT=11434 \
+  -e LLAMASTACK_HOST=0.0.0.0 \
+  llamastack/llamastack:latest
+
+# Check pod status
+podman pod ps
+podman ps --pod</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rootless-containers"><a class="anchor" href="#rootless-containers"></a>Rootless Containers</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="security-benefits"><a class="anchor" href="#security-benefits"></a>Security Benefits</h3>
+<div class="paragraph">
+<p>Podman runs containers without root privileges by default:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check user namespaces
+podman system info | grep -i rootless
+
+# Run containers as non-root user
+podman run --rm -it alpine id</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">uid=0(root) gid=0(root) groups=0(root)
+# But this is mapped to your user ID on the host</code></pre>
+</div>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check actual process owner on host
+ps aux | grep -i llamastack</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="volume-permissions"><a class="anchor" href="#volume-permissions"></a>Volume Permissions</h3>
+<div class="paragraph">
+<p>Handle volume permissions correctly in rootless mode:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Create directories with correct permissions
+mkdir -p config data logs
+chmod 755 config data logs
+
+# Use :Z flag for SELinux systems
+podman run -v ./config:/app/config:Z llamastack/llamastack:latest
+
+# For user namespace mapping
+podman run --userns=keep-id -v ./config:/app/config llamastack/llamastack:latest</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="systemd-integration"><a class="anchor" href="#systemd-integration"></a>Systemd Integration</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="generate-systemd-units"><a class="anchor" href="#generate-systemd-units"></a>Generate Systemd Units</h3>
+<div class="paragraph">
+<p>Podman can generate systemd service files for automatic startup:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Generate unit files for running containers
+podman generate systemd --new --files --name llamastack
+
+# Or for pods
+podman generate systemd --new --files --name llamastack-pod
+
+# Move to systemd directory
+mv *.service ~/.config/systemd/user/
+
+# Reload and enable
+systemctl --user daemon-reload
+systemctl --user enable container-llamastack.service
+systemctl --user start container-llamastack.service</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="user-services"><a class="anchor" href="#user-services"></a>User Services</h3>
+<div class="paragraph">
+<p>Enable lingering for user services to start at boot:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Enable lingering for your user
+sudo loginctl enable-linger $USER
+
+# Check service status
+systemctl --user status container-llamastack.service
+
+# View logs
+journalctl --user -u container-llamastack.service -f</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="networking"><a class="anchor" href="#networking"></a>Networking</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="custom-networks"><a class="anchor" href="#custom-networks"></a>Custom Networks</h3>
+<div class="paragraph">
+<p>Create custom networks for better isolation:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Create a custom network
+podman network create llamastack-net
+
+# Run containers on the custom network
+podman run -d --network llamastack-net \
+  --name redis \
+  redis:7-alpine
+
+podman run -d --network llamastack-net \
+  --name llamastack \
+  -p 11434:11434 \
+  llamastack/llamastack:latest
+
+# Check network details
+podman network inspect llamastack-net</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="port-forwarding"><a class="anchor" href="#port-forwarding"></a>Port Forwarding</h3>
+<div class="paragraph">
+<p>Configure port forwarding for external access:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Expose on specific interface
+podman run -p 127.0.0.1:11434:11434 llamastack/llamastack:latest
+
+# Expose on all interfaces
+podman run -p 0.0.0.0:11434:11434 llamastack/llamastack:latest
+
+# Use different host port
+podman run -p 8080:11434 llamastack/llamastack:latest</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="performance-tuning"><a class="anchor" href="#performance-tuning"></a>Performance Tuning</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="resource-limits"><a class="anchor" href="#resource-limits"></a>Resource Limits</h3>
+<div class="paragraph">
+<p>Set resource constraints for containers:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Limit memory and CPU
+podman run -d \
+  --memory=4g \
+  --cpus=2 \
+  --name llamastack \
+  llamastack/llamastack:latest
+
+# Set CPU shares (relative weight)
+podman run -d \
+  --cpu-shares=1024 \
+  --name llamastack \
+  llamastack/llamastack:latest</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="storage-optimization"><a class="anchor" href="#storage-optimization"></a>Storage Optimization</h3>
+<div class="paragraph">
+<p>Optimize storage for better performance:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Use overlay storage driver
+podman info | grep -i "storage driver"
+
+# Configure storage in ~/.config/containers/storage.conf
+[storage]
+driver = "overlay"
+runroot = "/tmp/containers-user-$UID/storage"
+graphroot = "$HOME/.local/share/containers/storage"
+
+[storage.options]
+mount_program = "/usr/bin/fuse-overlayfs"</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="monitoring"><a class="anchor" href="#monitoring"></a>Monitoring</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="resource-monitoring"><a class="anchor" href="#resource-monitoring"></a>Resource Monitoring</h3>
+<div class="paragraph">
+<p>Monitor container resource usage:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Real-time stats
+podman stats
+
+# Container logs
+podman logs -f llamastack
+
+# System events
+podman events --since 30m
+
+# Resource usage for specific container
+podman inspect llamastack | jq '.[0].State.Health'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="health-checks"><a class="anchor" href="#health-checks"></a>Health Checks</h3>
+<div class="paragraph">
+<p>Implement health monitoring:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Built-in health check
+podman run -d \
+  --health-cmd="curl -f <a href="http://localhost:11434/health" class="bare">http://localhost:11434/health</a> || exit 1" \
+  --health-interval=30s \
+  --health-timeout=10s \
+  --health-retries=3 \
+  llamastack/llamastack:latest
+
+# Check health status
+podman healthcheck run llamastack</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="backup-restore"><a class="anchor" href="#backup-restore"></a>Backup and Restore</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="container-export"><a class="anchor" href="#container-export"></a>Container Export</h3>
+<div class="paragraph">
+<p>Export and import containers:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Export running container
+podman export llamastack &gt; llamastack-backup.tar
+
+# Import container
+podman import llamastack-backup.tar llamastack:backup
+
+# Save image
+podman save -o llamastack-image.tar llamastack/llamastack:latest
+
+# Load image
+podman load -i llamastack-image.tar</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="volume-backup"><a class="anchor" href="#volume-backup"></a>Volume Backup</h3>
+<div class="paragraph">
+<p>Backup persistent data:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Create backup
+podman run --rm \
+  -v llamastack_data:/source:ro \
+  -v $(pwd):/backup \
+  alpine tar czf /backup/llamastack-data.tar.gz -C /source .
+
+# Restore backup
+podman volume create llamastack_data_restored
+podman run --rm \
+  -v llamastack_data_restored:/target \
+  -v $(pwd):/backup \
+  alpine tar xzf /backup/llamastack-data.tar.gz -C /target</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>Troubleshooting</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="common-issues"><a class="anchor" href="#common-issues"></a>Common Podman Issues</h3>
+<div class="paragraph">
+<p><strong>Rootless Permission Issues</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check user namespaces
+cat /etc/subuid
+cat /etc/subgid
+
+# Reset user namespaces
+podman system reset</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Network Connectivity</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check network configuration
+podman network ls
+podman network inspect podman
+
+# Reset networking
+podman system reset --force</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Storage Issues</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check storage
+podman system df
+podman system info
+
+# Clean up storage
+podman system prune -a</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="migration-from-docker"><a class="anchor" href="#migration-from-docker"></a>Migration from Docker</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="automatic-migration"><a class="anchor" href="#automatic-migration"></a>Automatic Migration</h3>
+<div class="paragraph">
+<p>Migrate existing Docker setups:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Use docker-compose files directly
+podman-compose -f docker-compose.yml up
+
+# Import Docker images
+docker save image_name | podman load
+
+# Convert Docker volumes
+docker run --rm -v docker_volume:/source -v $(pwd):/backup alpine tar czf /backup/volume.tar.gz -C /source .
+podman volume create podman_volume
+podman run --rm -v podman_volume:/target -v $(pwd):/backup alpine tar xzf /backup/volume.tar.gz -C /target</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cleanup"><a class="anchor" href="#cleanup"></a>Cleanup</h2>
+<div class="sectionbody">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Stop all containers
+podman stop --all
+
+# Remove all containers
+podman rm --all
+
+# Remove all images
+podman rmi --all
+
+# Remove all volumes
+podman volume prune
+
+# Complete system reset
+podman system reset</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="next-steps"><a class="anchor" href="#next-steps"></a>Next Steps</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Ready to explore GUI-based container management? Let&#8217;s look at Podman Desktop:</p>
+</div>
+<div class="paragraph">
+<p><a href="04-podman-desktop.html" class="xref page">Continue to Podman Desktop →</a></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="02-local-docker.html">2. Local Development with Docker</a></span>
+  <span class="next"><a href="04-podman-desktop.html">4. Podman Desktop</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

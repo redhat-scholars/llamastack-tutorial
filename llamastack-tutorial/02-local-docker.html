@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Local Development with Docker :: LlamaStack Tutorial</title>
+    <link rel="canonical" href="https://redhat-scholars.github.io/course-template/llamastack-tutorial/02-local-docker.html">
+    <link rel="prev" href="01-introduction.html">
+    <link rel="next" href="03-local-podman.html">
+    <meta name="generator" content="Antora 3.0.0">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://developers.redhat.com" target="_blank"><img src="../_/img/RHDLogo.svg" height="40px" alt="Red Hat Developer Program"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="https://redhat-scholars.github.io/course-template">LlamaStack Tutorial</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://developers.redhat.com/ebooks/" target="_blank">Books</a>
+        <a class="navbar-item" href="https://developers.redhat.com/cheatsheets/" target="_blank">Cheat Sheets</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">More Tutorials</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/kubernetes-tutorial/" target="_blank">Kubernetes</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/istio-tutorial/" target="_blank">Istio</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/quarkus-tutorial/" target="_blank">Quarkus</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/knative-tutorial/" target="_blank">Knative</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/tekton-tutorial/" target="_blank">Tekton</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="llamastack-tutorial" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html"></a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="01-introduction.html">1. Introduction</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#overview">LlamaStack Overview</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#architecture">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#prerequisites">Prerequisites</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="02-local-docker.html">2. Local Development with Docker</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#setup">Docker Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#configuration">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#testing">Testing Your Setup</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="03-local-podman.html">3. Local Development with Podman</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#setup">Podman Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#rootless-containers">Rootless Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#systemd-integration">Systemd Integration</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="04-podman-desktop.html">4. Podman Desktop</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#setup">Podman Desktop Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#gui">GUI Management</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#monitoring">Monitoring and Debugging</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#extensions">Extensions and Integrations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="05-kubernetes.html">5. Kubernetes Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#prerequisites">Prerequisites</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#manifests">Kubernetes Manifests</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#deployment">Production Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#scaling">Scaling and Performance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#monitoring">Monitoring and Observability</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="06-openshift.html">6. OpenShift Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#setup">OpenShift Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#deployment">Enterprise Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#security-compliance">Security and Compliance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#operators">OpenShift Operators</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#gitops">GitOps with OpenShift GitOps</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">LlamaStack Tutorial</a></li>
+    <li><a href="02-local-docker.html">2. Local Development with Docker</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/redhat-scholars/llamastack-tutorial/edit/master/documentation/modules/ROOT/pages/02-local-docker.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Local Development with Docker</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Learn how to set up and run LlamaStack locally using Docker containers for development and testing.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="setup"><a class="anchor" href="#setup"></a>Docker Setup</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="install-docker"><a class="anchor" href="#install-docker"></a>Installing Docker</h3>
+<div class="paragraph">
+<p>First, ensure Docker is installed on your system:</p>
+</div>
+<div class="tabset is-loading">
+<div class="ulist tabs">
+<ul>
+<li>
+<p><a id="tabset1_linux"></a>Linux</p>
+</li>
+<li>
+<p><a id="tabset1_macos"></a>macOS</p>
+</li>
+<li>
+<p><a id="tabset1_windows"></a>Windows</p>
+</li>
+</ul>
+</div>
+<div class="content">
+<div class="tab-pane" aria-labelledby="tabset1_linux">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Ubuntu/Debian
+sudo apt update
+sudo apt install docker.io docker-compose
+
+# RHEL/CentOS/Fedora
+sudo dnf install docker docker-compose
+
+# Start and enable Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add your user to docker group (logout/login required)
+sudo usermod -aG docker $USER</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_macos">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Install Docker Desktop for Mac
+# Download from: <a href="https://www.docker.com/products/docker-desktop" class="bare">https://www.docker.com/products/docker-desktop</a>
+
+# Or using Homebrew
+brew install --cask docker</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_windows">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Install Docker Desktop for Windows
+# Download from: <a href="https://www.docker.com/products/docker-desktop" class="bare">https://www.docker.com/products/docker-desktop</a>
+
+# Or using Chocolatey
+choco install docker-desktop</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="verify-installation"><a class="anchor" href="#verify-installation"></a>Verify Installation</h3>
+<div class="paragraph">
+<p>Verify Docker is working correctly:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker --version
+docker-compose --version
+docker run hello-world</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="running"><a class="anchor" href="#running"></a>Running LlamaStack</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="quick-start"><a class="anchor" href="#quick-start"></a>Quick Start with Docker Compose</h3>
+<div class="paragraph">
+<p>Create a <code>docker-compose.yml</code> file for a complete LlamaStack setup:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">version: '3.8'
+
+services:
+  llamastack:
+    image: llamastack/llamastack:latest
+    ports:
+      - "11434:11434"
+    environment:
+      - LLAMASTACK_PORT=11434
+      - LLAMASTACK_HOST=0.0.0.0
+    volumes:
+      - llamastack_data:/app/data
+      - ./config:/app/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  llamastack_data:
+  redis_data:</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="start-services"><a class="anchor" href="#start-services"></a>Start Services</h3>
+<div class="paragraph">
+<p>Start the LlamaStack services:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Start in detached mode
+docker-compose up -d
+
+# View logs
+docker-compose logs -f llamastack
+
+# Check status
+docker-compose ps</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="config-files"><a class="anchor" href="#config-files"></a>Configuration Files</h3>
+<div class="paragraph">
+<p>Create a configuration directory with your LlamaStack settings:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mkdir -p config</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Create <code>config/llamastack.yaml</code>:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">server:
+  host: 0.0.0.0
+  port: 11434
+
+models:
+  providers:
+    - provider_type: ollama
+      config:
+        url: <a href="http://localhost:11434" class="bare">http://localhost:11434</a>
+    - provider_type: openai
+      config:
+        api_key: ${OPENAI_API_KEY}
+
+tools:
+  providers:
+    - provider_type: filesystem
+      config:
+        base_path: /app/data
+    - provider_type: web_search
+      config:
+        api_key: ${SEARCH_API_KEY}
+
+safety:
+  providers:
+    - provider_type: llama_guard
+      config:
+        model_id: meta-llama/LlamaGuard-7b
+
+memory:
+  provider_type: redis
+  config:
+    host: redis
+    port: 6379</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="environment-variables"><a class="anchor" href="#environment-variables"></a>Environment Variables</h3>
+<div class="paragraph">
+<p>Create a <code>.env</code> file for sensitive configuration:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># API Keys
+OPENAI_API_KEY=your_openai_key_here
+SEARCH_API_KEY=your_search_key_here
+
+# Model Configuration
+DEFAULT_MODEL=llama2
+MAX_TOKENS=2048
+
+# Security
+LLAMASTACK_API_KEY=your_api_key_here</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Update your <code>docker-compose.yml</code> to use the environment file:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">services:
+  llamastack:
+    # ... other configuration
+    env_file:
+      - .env
+    environment:
+      - LLAMASTACK_PORT=11434
+      - LLAMASTACK_HOST=0.0.0.0</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="testing"><a class="anchor" href="#testing"></a>Testing Your Setup</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="health-check"><a class="anchor" href="#health-check"></a>Health Check</h3>
+<div class="paragraph">
+<p>Verify LlamaStack is running:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl <a href="http://localhost:11434/health" class="bare">http://localhost:11434/health</a></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expected response:</p>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">{
+  "status": "healthy",
+  "version": "0.1.0",
+  "timestamp": "2023-12-01T10:00:00Z"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="api-testing"><a class="anchor" href="#api-testing"></a>API Testing</h3>
+<div class="paragraph">
+<p>Test the chat completion endpoint:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl -X POST <a href="http://localhost:11434/v1/chat/completions" class="bare">http://localhost:11434/v1/chat/completions</a> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your_api_key_here" \
+  -d '{
+    "model": "llama2",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello, how are you?"
+      }
+    ],
+    "max_tokens": 100
+  }'</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="development-workflow"><a class="anchor" href="#development-workflow"></a>Development Workflow</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="hot-reload"><a class="anchor" href="#hot-reload"></a>Hot Reload for Development</h3>
+<div class="paragraph">
+<p>For development with code changes, mount your source code:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">services:
+  llamastack:
+    image: llamastack/llamastack:dev
+    volumes:
+      - ./src:/app/src
+      - llamastack_data:/app/data
+    environment:
+      - PYTHONPATH=/app
+      - LLAMASTACK_ENV=development
+    command: ["python", "-m", "llamastack.server", "--reload"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="debugging"><a class="anchor" href="#debugging"></a>Debugging</h3>
+<div class="paragraph">
+<p>Enable debug logging:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">services:
+  llamastack:
+    # ... other configuration
+    environment:
+      - LLAMASTACK_LOG_LEVEL=DEBUG
+      - PYTHONUNBUFFERED=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Access container for debugging:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose exec llamastack bash</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="persistence"><a class="anchor" href="#persistence"></a>Data Persistence</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="volume-management"><a class="anchor" href="#volume-management"></a>Volume Management</h3>
+<div class="paragraph">
+<p>List and inspect volumes:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># List volumes
+docker volume ls
+
+# Inspect volume
+docker volume inspect llamastack_llamastack_data
+
+# Backup volume
+docker run --rm -v llamastack_llamastack_data:/data -v $(pwd):/backup alpine tar czf /backup/llamastack-backup.tar.gz -C /data .
+
+# Restore volume
+docker run --rm -v llamastack_llamastack_data:/data -v $(pwd):/backup alpine tar xzf /backup/llamastack-backup.tar.gz -C /data</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cleanup"><a class="anchor" href="#cleanup"></a>Cleanup</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="stop-services"><a class="anchor" href="#stop-services"></a>Stop Services</h3>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Stop services
+docker-compose down
+
+# Stop and remove volumes
+docker-compose down -v
+
+# Remove images
+docker-compose down --rmi all</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>Troubleshooting</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="common-issues"><a class="anchor" href="#common-issues"></a>Common Issues</h3>
+<div class="paragraph">
+<p><strong>Port Already in Use</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check what's using the port
+sudo netstat -tulpn | grep :11434
+
+# Change port in docker-compose.yml
+ports:
+  - "11435:11434"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Permission Denied</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Fix volume permissions
+sudo chown -R $USER:$USER ./config
+sudo chmod -R 755 ./config</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Container Won&#8217;t Start</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check logs
+docker-compose logs llamastack
+
+# Check container status
+docker-compose ps
+
+# Restart specific service
+docker-compose restart llamastack</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="next-steps"><a class="anchor" href="#next-steps"></a>Next Steps</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now that you have LlamaStack running with Docker, let&#8217;s explore Podman as an alternative:</p>
+</div>
+<div class="paragraph">
+<p><a href="03-local-podman.html" class="xref page">Continue to Podman Setup →</a></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="01-introduction.html">1. Introduction</a></span>
+  <span class="next"><a href="03-local-podman.html">3. Local Development with Podman</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

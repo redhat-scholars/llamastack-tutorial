@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Podman Desktop :: LlamaStack Tutorial</title>
+    <link rel="canonical" href="https://redhat-scholars.github.io/course-template/llamastack-tutorial/04-podman-desktop.html">
+    <link rel="prev" href="03-local-podman.html">
+    <link rel="next" href="05-kubernetes.html">
+    <meta name="generator" content="Antora 3.0.0">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://developers.redhat.com" target="_blank"><img src="../_/img/RHDLogo.svg" height="40px" alt="Red Hat Developer Program"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="https://redhat-scholars.github.io/course-template">LlamaStack Tutorial</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://developers.redhat.com/ebooks/" target="_blank">Books</a>
+        <a class="navbar-item" href="https://developers.redhat.com/cheatsheets/" target="_blank">Cheat Sheets</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">More Tutorials</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/kubernetes-tutorial/" target="_blank">Kubernetes</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/istio-tutorial/" target="_blank">Istio</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/quarkus-tutorial/" target="_blank">Quarkus</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/knative-tutorial/" target="_blank">Knative</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/tekton-tutorial/" target="_blank">Tekton</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="llamastack-tutorial" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html"></a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="01-introduction.html">1. Introduction</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#overview">LlamaStack Overview</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#architecture">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#prerequisites">Prerequisites</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="02-local-docker.html">2. Local Development with Docker</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#setup">Docker Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#configuration">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#testing">Testing Your Setup</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="03-local-podman.html">3. Local Development with Podman</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#setup">Podman Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#rootless-containers">Rootless Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#systemd-integration">Systemd Integration</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="04-podman-desktop.html">4. Podman Desktop</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#setup">Podman Desktop Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#gui">GUI Management</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#monitoring">Monitoring and Debugging</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#extensions">Extensions and Integrations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="05-kubernetes.html">5. Kubernetes Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#prerequisites">Prerequisites</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#manifests">Kubernetes Manifests</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#deployment">Production Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#scaling">Scaling and Performance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#monitoring">Monitoring and Observability</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="06-openshift.html">6. OpenShift Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#setup">OpenShift Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#deployment">Enterprise Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#security-compliance">Security and Compliance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#operators">OpenShift Operators</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#gitops">GitOps with OpenShift GitOps</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">LlamaStack Tutorial</a></li>
+    <li><a href="04-podman-desktop.html">4. Podman Desktop</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/redhat-scholars/llamastack-tutorial/edit/master/documentation/modules/ROOT/pages/04-podman-desktop.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Podman Desktop</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Learn how to use Podman Desktop, a graphical interface for managing containers, pods, and images with Podman.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="setup"><a class="anchor" href="#setup"></a>Podman Desktop Setup</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="installation"><a class="anchor" href="#installation"></a>Installing Podman Desktop</h3>
+<div class="paragraph">
+<p>Podman Desktop provides a user-friendly GUI for container management, similar to Docker Desktop.</p>
+</div>
+<div class="tabset is-loading">
+<div class="ulist tabs">
+<ul>
+<li>
+<p><a id="tabset1_linux"></a>Linux</p>
+</li>
+<li>
+<p><a id="tabset1_macos"></a>macOS</p>
+</li>
+<li>
+<p><a id="tabset1_windows"></a>Windows</p>
+</li>
+</ul>
+</div>
+<div class="content">
+<div class="tab-pane" aria-labelledby="tabset1_linux">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Download from GitHub releases
+wget <a href="https://github.com/containers/podman-desktop/releases/latest/download/podman-desktop-*.AppImage" class="bare">https://github.com/containers/podman-desktop/releases/latest/download/podman-desktop-*.AppImage</a>
+
+# Make executable
+chmod +x podman-desktop-*.AppImage
+
+# Run
+./podman-desktop-*.AppImage
+
+# Or install via package manager
+# Flatpak
+flatpak install flathub io.podman_desktop.PodmanDesktop
+
+# Snap
+sudo snap install podman-desktop</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_macos">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Download DMG from GitHub releases
+# <a href="https://github.com/containers/podman-desktop/releases" class="bare">https://github.com/containers/podman-desktop/releases</a>
+
+# Or install via Homebrew
+brew install --cask podman-desktop
+
+# Launch from Applications or command line
+open -a "Podman Desktop"</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_windows">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Download installer from GitHub releases
+# <a href="https://github.com/containers/podman-desktop/releases" class="bare">https://github.com/containers/podman-desktop/releases</a>
+
+# Or install via package managers
+# Chocolatey
+choco install podman-desktop
+
+# Winget
+winget install RedHat.Podman-Desktop</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="initial-setup"><a class="anchor" href="#initial-setup"></a>Initial Setup</h3>
+<div class="paragraph">
+<p>When you first launch Podman Desktop:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Check Prerequisites</strong>: Podman Desktop will verify that Podman is installed</p>
+</li>
+<li>
+<p><strong>Initialize Podman Machine</strong> (macOS/Windows): Set up the Podman virtual machine</p>
+</li>
+<li>
+<p><strong>Configure Settings</strong>: Adjust preferences and resource allocation</p>
+</li>
+</ol>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Verify Podman is available
+podman --version
+
+# On macOS/Windows, initialize machine if needed
+podman machine init
+podman machine start</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="gui"><a class="anchor" href="#gui"></a>GUI Management</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="dashboard"><a class="anchor" href="#dashboard"></a>Dashboard Overview</h3>
+<div class="paragraph">
+<p>The Podman Desktop dashboard provides:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>System Overview</strong>: Resource usage, running containers, and system status</p>
+</li>
+<li>
+<p><strong>Quick Actions</strong>: Start/stop services, create containers, pull images</p>
+</li>
+<li>
+<p><strong>Recent Activity</strong>: Latest container operations and logs</p>
+</li>
+<li>
+<p><strong>System Health</strong>: Podman engine status and diagnostics</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="container-management"><a class="anchor" href="#container-management"></a>Container Management</h3>
+<div class="paragraph">
+<p><strong>Creating Containers</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to <strong>Images</strong> → Select an image → <strong>Run</strong></p>
+</li>
+<li>
+<p>Configure container settings:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name</strong>: <code>llamastack</code></p>
+</li>
+<li>
+<p><strong>Port Mapping</strong>: <code>11434:11434</code></p>
+</li>
+<li>
+<p><strong>Environment Variables</strong>: Add <code>LLAMASTACK_PORT=11434</code></p>
+</li>
+<li>
+<p><strong>Volume Mounts</strong>: Mount config and data directories</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Managing Running Containers</strong></p>
+</div>
+<div class="paragraph">
+<p>From the <strong>Containers</strong> view:
+- <strong>Start/Stop</strong>: Use action buttons
+- <strong>Logs</strong>: View real-time container logs
+- <strong>Terminal</strong>: Access container shell
+- <strong>Stats</strong>: Monitor resource usage
+- <strong>Inspect</strong>: View detailed container information</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="image-management"><a class="anchor" href="#image-management"></a>Image Management</h3>
+<div class="paragraph">
+<p><strong>Pulling Images</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Go to <strong>Images</strong> → <strong>Pull Image</strong></p>
+</li>
+<li>
+<p>Enter image name: <code>llamastack/llamastack:latest</code></p>
+</li>
+<li>
+<p>Select tag and pull</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Building Images</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to <strong>Images</strong> → <strong>Build</strong></p>
+</li>
+<li>
+<p>Select Dockerfile location</p>
+</li>
+<li>
+<p>Configure build context and tags</p>
+</li>
+<li>
+<p>Monitor build progress</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Image Operations</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Push</strong>: Push images to registries</p>
+</li>
+<li>
+<p><strong>Tag</strong>: Create image tags</p>
+</li>
+<li>
+<p><strong>Remove</strong>: Delete unused images</p>
+</li>
+<li>
+<p><strong>Inspect</strong>: View image details and layers</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pod-management"><a class="anchor" href="#pod-management"></a>Pod Management</h3>
+<div class="paragraph">
+<p>Podman Desktop provides excellent pod management capabilities:</p>
+</div>
+<div class="paragraph">
+<p><strong>Creating Pods</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Go to <strong>Pods</strong> → <strong>Create Pod</strong></p>
+</li>
+<li>
+<p>Configure pod settings:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name</strong>: <code>llamastack-pod</code></p>
+</li>
+<li>
+<p><strong>Port Mapping</strong>: <code>11434:11434, 6379:6379</code></p>
+</li>
+<li>
+<p><strong>Labels</strong>: Add descriptive labels</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Adding Containers to Pods</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Select existing pod or create new</p>
+</li>
+<li>
+<p><strong>Add Container</strong> → Choose image</p>
+</li>
+<li>
+<p>Configure container within pod context</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Pod Operations</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Start/Stop Pod</strong>: Control all containers in pod</p>
+</li>
+<li>
+<p><strong>Generate Kubernetes YAML</strong>: Export pod configuration</p>
+</li>
+<li>
+<p><strong>Logs</strong>: View aggregated pod logs</p>
+</li>
+<li>
+<p><strong>Delete</strong>: Remove pod and all containers</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="volume-management"><a class="anchor" href="#volume-management"></a>Volume Management</h3>
+<div class="paragraph">
+<p><strong>Creating Volumes</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to <strong>Volumes</strong> → <strong>Create Volume</strong></p>
+</li>
+<li>
+<p>Configure volume:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name</strong>: <code>llamastack-data</code></p>
+</li>
+<li>
+<p><strong>Driver</strong>: local</p>
+</li>
+<li>
+<p><strong>Mount Point</strong>: Auto-generated</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Volume Operations</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Inspect</strong>: View volume details and usage</p>
+</li>
+<li>
+<p><strong>Backup</strong>: Export volume data</p>
+</li>
+<li>
+<p><strong>Prune</strong>: Remove unused volumes</p>
+</li>
+<li>
+<p><strong>Mount</strong>: Attach to containers</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="networking"><a class="anchor" href="#networking"></a>Networking</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="network-configuration"><a class="anchor" href="#network-configuration"></a>Network Configuration</h3>
+<div class="paragraph">
+<p><strong>Creating Networks</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Go to <strong>Networks</strong> → <strong>Create Network</strong></p>
+</li>
+<li>
+<p>Configure network settings:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name</strong>: <code>llamastack-net</code></p>
+</li>
+<li>
+<p><strong>Driver</strong>: bridge</p>
+</li>
+<li>
+<p><strong>Subnet</strong>: Custom or auto-assigned</p>
+</li>
+<li>
+<p><strong>Gateway</strong>: Auto-configured</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Network Operations</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Inspect</strong>: View network topology</p>
+</li>
+<li>
+<p><strong>Connect</strong>: Attach containers to networks</p>
+</li>
+<li>
+<p><strong>Disconnect</strong>: Remove containers from networks</p>
+</li>
+<li>
+<p><strong>Remove</strong>: Delete unused networks</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="port-forwarding"><a class="anchor" href="#port-forwarding"></a>Port Forwarding</h3>
+<div class="paragraph">
+<p>Configure port access through the GUI:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Container Settings</strong> → <strong>Ports</strong></p>
+</li>
+<li>
+<p>Add port mappings:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Host Port</strong>: <code>11434</code></p>
+</li>
+<li>
+<p><strong>Container Port</strong>: <code>11434</code></p>
+</li>
+<li>
+<p><strong>Protocol</strong>: TCP</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Apply changes and restart container</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="compose-integration"><a class="anchor" href="#compose-integration"></a>Compose Integration</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="compose-files"><a class="anchor" href="#compose-files"></a>Working with Compose Files</h3>
+<div class="paragraph">
+<p><strong>Loading Compose Projects</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Compose</strong> → <strong>Create from existing Compose file</strong></p>
+</li>
+<li>
+<p>Select your <code>docker-compose.yml</code> file</p>
+</li>
+<li>
+<p>Review and modify service configurations</p>
+</li>
+<li>
+<p><strong>Create and Start</strong> services</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Compose Project Management</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Start/Stop</strong>: Control entire stack</p>
+</li>
+<li>
+<p><strong>Logs</strong>: View service logs</p>
+</li>
+<li>
+<p><strong>Scale</strong>: Adjust service replicas</p>
+</li>
+<li>
+<p><strong>Update</strong>: Modify service configurations</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="compose-yaml-editor"><a class="anchor" href="#compose-yaml-editor"></a>Built-in YAML Editor</h3>
+<div class="paragraph">
+<p>Podman Desktop includes a YAML editor for compose files:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Syntax Highlighting</strong>: AsciiDoc and YAML syntax support</p>
+</li>
+<li>
+<p><strong>Validation</strong>: Real-time compose file validation</p>
+</li>
+<li>
+<p><strong>Auto-completion</strong>: Service and configuration suggestions</p>
+</li>
+<li>
+<p><strong>Live Preview</strong>: See changes before applying</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="monitoring"><a class="anchor" href="#monitoring"></a>Monitoring and Debugging</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="resource-monitoring"><a class="anchor" href="#resource-monitoring"></a>Resource Monitoring</h3>
+<div class="paragraph">
+<p><strong>System Dashboard</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>CPU Usage</strong>: Real-time CPU utilization</p>
+</li>
+<li>
+<p><strong>Memory Usage</strong>: RAM consumption by containers</p>
+</li>
+<li>
+<p><strong>Disk Usage</strong>: Storage utilization</p>
+</li>
+<li>
+<p><strong>Network I/O</strong>: Network traffic statistics</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Container-specific Monitoring</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Resource Limits</strong>: Set and monitor limits</p>
+</li>
+<li>
+<p><strong>Health Checks</strong>: Configure and view health status</p>
+</li>
+<li>
+<p><strong>Performance Metrics</strong>: CPU, memory, network per container</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="log-management"><a class="anchor" href="#log-management"></a>Log Management</h3>
+<div class="paragraph">
+<p><strong>Centralized Logging</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Real-time Logs</strong>: Stream container output</p>
+</li>
+<li>
+<p><strong>Log Filtering</strong>: Search and filter log entries</p>
+</li>
+<li>
+<p><strong>Log Export</strong>: Save logs to files</p>
+</li>
+<li>
+<p><strong>Log Rotation</strong>: Configure log retention</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Debugging Tools</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Terminal Access</strong>: Shell into containers</p>
+</li>
+<li>
+<p><strong>File Browser</strong>: Explore container filesystem</p>
+</li>
+<li>
+<p><strong>Process List</strong>: View running processes</p>
+</li>
+<li>
+<p><strong>Network Inspector</strong>: Debug network connectivity</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="extensions"><a class="anchor" href="#extensions"></a>Extensions and Integrations</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="kubernetes-integration"><a class="anchor" href="#kubernetes-integration"></a>Kubernetes Integration</h3>
+<div class="paragraph">
+<p><strong>Kind/Minikube Support</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Settings</strong> → <strong>Resources</strong> → <strong>Kubernetes</strong></p>
+</li>
+<li>
+<p>Enable Kubernetes provider</p>
+</li>
+<li>
+<p>Create local cluster or connect existing</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Pod Generation</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Generate Kubernetes YAML</strong>: Convert pods to K8s manifests</p>
+</li>
+<li>
+<p><strong>Deploy to Cluster</strong>: Direct deployment from Desktop</p>
+</li>
+<li>
+<p><strong>Cluster Management</strong>: Monitor K8s resources</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="registry-integration"><a class="anchor" href="#registry-integration"></a>Registry Integration</h3>
+<div class="paragraph">
+<p><strong>Registry Configuration</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Settings</strong> → <strong>Registries</strong></p>
+</li>
+<li>
+<p>Add registry credentials:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Registry URL</strong>: Custom or public registries</p>
+</li>
+<li>
+<p><strong>Username/Password</strong>: Authentication</p>
+</li>
+<li>
+<p><strong>Secure Connection</strong>: TLS settings</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Registry Operations</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Browse Images</strong>: Explore registry catalogs</p>
+</li>
+<li>
+<p><strong>Pull Images</strong>: Download from registries</p>
+</li>
+<li>
+<p><strong>Push Images</strong>: Upload to registries</p>
+</li>
+<li>
+<p><strong>Manage Tags</strong>: Tag management interface</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="development-workflow"><a class="anchor" href="#development-workflow"></a>Development Workflow</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="dev-containers"><a class="anchor" href="#dev-containers"></a>Development Containers</h3>
+<div class="paragraph">
+<p><strong>Setting up Dev Environment</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create development container with mounted source code:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Image</strong>: <code>llamastack/llamastack:dev</code></p>
+</li>
+<li>
+<p><strong>Volumes</strong>: Mount <code>./src:/app/src</code></p>
+</li>
+<li>
+<p><strong>Environment</strong>: Set development variables</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Enable development features:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Hot Reload</strong>: Automatic code reloading</p>
+</li>
+<li>
+<p><strong>Debug Mode</strong>: Enhanced logging</p>
+</li>
+<li>
+<p><strong>Port Forwarding</strong>: Direct access to services</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="testing-workflow"><a class="anchor" href="#testing-workflow"></a>Testing Workflow</h3>
+<div class="paragraph">
+<p><strong>Container Testing</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Quick Tests</strong>: Run containers with test configurations</p>
+</li>
+<li>
+<p><strong>Integration Tests</strong>: Multi-container test scenarios</p>
+</li>
+<li>
+<p><strong>Load Testing</strong>: Monitor resource usage under load</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Debugging Workflow</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Inspect Containers</strong>: View configuration and state</p>
+</li>
+<li>
+<p><strong>Access Logs</strong>: Real-time debugging information</p>
+</li>
+<li>
+<p><strong>Shell Access</strong>: Direct container troubleshooting</p>
+</li>
+<li>
+<p><strong>Network Testing</strong>: Verify connectivity between services</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="automation"><a class="anchor" href="#automation"></a>Automation</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="scripting-integration"><a class="anchor" href="#scripting-integration"></a>Scripting Integration</h3>
+<div class="paragraph">
+<p><strong>Command Palette</strong></p>
+</div>
+<div class="paragraph">
+<p>Access common operations via command palette (Ctrl/Cmd + Shift + P):
+- Container operations
+- Image management
+- Network configuration
+- Volume operations</p>
+</div>
+<div class="paragraph">
+<p><strong>Custom Scripts</strong></p>
+</div>
+<div class="paragraph">
+<p>Integrate with external scripts:
+- <strong>Pre/Post Hooks</strong>: Run scripts before/after operations
+- <strong>Custom Actions</strong>: Add menu items for common tasks
+- <strong>Automation</strong>: Schedule regular maintenance tasks</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ci-cd-integration"><a class="anchor" href="#ci-cd-integration"></a>CI/CD Integration</h3>
+<div class="paragraph">
+<p><strong>Export Configurations</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Kubernetes YAML</strong>: Export for K8s deployments</p>
+</li>
+<li>
+<p><strong>Docker Compose</strong>: Generate compose files</p>
+</li>
+<li>
+<p><strong>Systemd Units</strong>: Create system service files</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Build Pipelines</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Image Building</strong>: Automated image builds</p>
+</li>
+<li>
+<p><strong>Testing</strong>: Container-based test execution</p>
+</li>
+<li>
+<p><strong>Deployment</strong>: Direct deployment to clusters</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>Troubleshooting</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="common-issues"><a class="anchor" href="#common-issues"></a>Common Desktop Issues</h3>
+<div class="paragraph">
+<p><strong>Application Won&#8217;t Start</strong>
+- Check Podman installation and version
+- Verify system permissions
+- Review application logs in system console</p>
+</div>
+<div class="paragraph">
+<p><strong>Connection Issues</strong>
+- Verify Podman machine status (macOS/Windows)
+- Check firewall settings
+- Validate network configuration</p>
+</div>
+<div class="paragraph">
+<p><strong>Performance Issues</strong>
+- Adjust resource allocation in settings
+- Monitor system resource usage
+- Optimize container configurations</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="diagnostic-tools"><a class="anchor" href="#diagnostic-tools"></a>Built-in Diagnostics</h3>
+<div class="paragraph">
+<p><strong>System Information</strong>
+- <strong>About</strong> → <strong>System Info</strong>: View configuration
+- <strong>Logs</strong> → <strong>Application Logs</strong>: Desktop application logs
+- <strong>Troubleshooting</strong> → <strong>System Check</strong>: Automated diagnostics</p>
+</div>
+<div class="paragraph">
+<p><strong>Reset Options</strong>
+- <strong>Reset Settings</strong>: Restore default configuration
+- <strong>Clear Cache</strong>: Remove cached data
+- <strong>Reinstall Podman</strong>: Fresh Podman installation</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="backup-restore"><a class="anchor" href="#backup-restore"></a>Backup and Restore</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="configuration-backup"><a class="anchor" href="#configuration-backup"></a>Configuration Backup</h3>
+<div class="paragraph">
+<p><strong>Settings Export</strong>
+1. <strong>Settings</strong> → <strong>General</strong> → <strong>Export Settings</strong>
+2. Save configuration file
+3. Import on new installation</p>
+</div>
+<div class="paragraph">
+<p><strong>Container Configurations</strong>
+- Export container configurations as JSON
+- Save compose files and pod definitions
+- Backup volume mount configurations</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="data-backup"><a class="anchor" href="#data-backup"></a>Data Backup</h3>
+<div class="paragraph">
+<p><strong>Volume Backup through GUI</strong>
+1. <strong>Volumes</strong> → Select volume → <strong>Actions</strong> → <strong>Backup</strong>
+2. Choose backup location
+3. Monitor backup progress</p>
+</div>
+<div class="paragraph">
+<p><strong>Container Export</strong>
+1. <strong>Containers</strong> → Select container → <strong>Actions</strong> → <strong>Export</strong>
+2. Save as tar archive
+3. Import on target system</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="next-steps"><a class="anchor" href="#next-steps"></a>Next Steps</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now that you&#8217;re comfortable with local development using Podman Desktop, let&#8217;s move to production deployments on Kubernetes:</p>
+</div>
+<div class="paragraph">
+<p><a href="05-kubernetes.html" class="xref page">Continue to Kubernetes Deployment →</a></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="03-local-podman.html">3. Local Development with Podman</a></span>
+  <span class="next"><a href="05-kubernetes.html">5. Kubernetes Deployment</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

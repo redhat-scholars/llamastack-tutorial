@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Welcome to LlamaStack Tutorial :: LlamaStack Tutorial</title>
+    <link rel="canonical" href="https://redhat-scholars.github.io/course-template/llamastack-tutorial/index.html">
+    <link rel="next" href="01-introduction.html">
+    <meta name="generator" content="Antora 3.0.0">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://developers.redhat.com" target="_blank"><img src="../_/img/RHDLogo.svg" height="40px" alt="Red Hat Developer Program"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="https://redhat-scholars.github.io/course-template">LlamaStack Tutorial</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://developers.redhat.com/ebooks/" target="_blank">Books</a>
+        <a class="navbar-item" href="https://developers.redhat.com/cheatsheets/" target="_blank">Cheat Sheets</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">More Tutorials</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/kubernetes-tutorial/" target="_blank">Kubernetes</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/istio-tutorial/" target="_blank">Istio</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/quarkus-tutorial/" target="_blank">Quarkus</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/knative-tutorial/" target="_blank">Knative</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/tekton-tutorial/" target="_blank">Tekton</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="llamastack-tutorial" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html"></a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="01-introduction.html">1. Introduction</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#overview">LlamaStack Overview</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#architecture">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#prerequisites">Prerequisites</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="02-local-docker.html">2. Local Development with Docker</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#setup">Docker Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#configuration">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#testing">Testing Your Setup</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="03-local-podman.html">3. Local Development with Podman</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#setup">Podman Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#rootless-containers">Rootless Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#systemd-integration">Systemd Integration</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="04-podman-desktop.html">4. Podman Desktop</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#setup">Podman Desktop Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#gui">GUI Management</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#monitoring">Monitoring and Debugging</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#extensions">Extensions and Integrations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="05-kubernetes.html">5. Kubernetes Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#prerequisites">Prerequisites</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#manifests">Kubernetes Manifests</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#deployment">Production Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#scaling">Scaling and Performance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#monitoring">Monitoring and Observability</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="06-openshift.html">6. OpenShift Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#setup">OpenShift Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#deployment">Enterprise Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#security-compliance">Security and Compliance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#operators">OpenShift Operators</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#gitops">GitOps with OpenShift GitOps</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link is-current"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">LlamaStack Tutorial</a></li>
+    <li><a href="index.html">Welcome to LlamaStack Tutorial</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/redhat-scholars/llamastack-tutorial/edit/master/documentation/modules/ROOT/pages/index.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Welcome to LlamaStack Tutorial</h1>
+<div class="sect1 text-center strong">
+<h2>LlamaStack Development and Deployment Guide</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Learn how to develop and deploy LlamaStack applications locally and in production environments using Docker, Podman, Kubernetes, and OpenShift.</p>
+</div>
+</div>
+</div>
+<div class="sect1 tiles browse">
+<h2>Browse modules</h2>
+<div class="sectionbody">
+<div class="ulist tile">
+<div class="title"><a href="01-introduction.html" class="xref page">Introduction</a></div>
+<ul>
+<li>
+<p><a href="01-introduction.html#overview" class="xref page">LlamaStack Overview</a></p>
+</li>
+<li>
+<p><a href="01-introduction.html#prerequisites" class="xref page">Prerequisites</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist tile">
+<div class="title"><a href="02-local-docker.html" class="xref page">Local Development with Docker</a></div>
+<ul>
+<li>
+<p><a href="02-local-docker.html#setup" class="xref page">Docker Setup</a></p>
+</li>
+<li>
+<p><a href="02-local-docker.html#running" class="xref page">Running LlamaStack</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist tile">
+<div class="title"><a href="03-local-podman.html" class="xref page">Local Development with Podman</a></div>
+<ul>
+<li>
+<p><a href="03-local-podman.html#setup" class="xref page">Podman Setup</a></p>
+</li>
+<li>
+<p><a href="03-local-podman.html#running" class="xref page">Running with Podman</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist tile">
+<div class="title"><a href="04-podman-desktop.html" class="xref page">Podman Desktop</a></div>
+<ul>
+<li>
+<p><a href="04-podman-desktop.html#setup" class="xref page">Desktop Setup</a></p>
+</li>
+<li>
+<p><a href="04-podman-desktop.html#gui" class="xref page">GUI Management</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist tile">
+<div class="title"><a href="05-kubernetes.html" class="xref page">Kubernetes Deployment</a></div>
+<ul>
+<li>
+<p><a href="05-kubernetes.html#manifests" class="xref page">Kubernetes Manifests</a></p>
+</li>
+<li>
+<p><a href="05-kubernetes.html#deployment" class="xref page">Production Deployment</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist tile">
+<div class="title"><a href="06-openshift.html" class="xref page">OpenShift Deployment</a></div>
+<ul>
+<li>
+<p><a href="06-openshift.html#setup" class="xref page">OpenShift Setup</a></p>
+</li>
+<li>
+<p><a href="06-openshift.html#deployment" class="xref page">Enterprise Deployment</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="next"><a href="01-introduction.html">1. Introduction</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Kubernetes Deployment :: LlamaStack Tutorial</title>
+    <link rel="canonical" href="https://redhat-scholars.github.io/course-template/llamastack-tutorial/05-kubernetes.html">
+    <link rel="prev" href="04-podman-desktop.html">
+    <link rel="next" href="06-openshift.html">
+    <meta name="generator" content="Antora 3.0.0">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://developers.redhat.com" target="_blank"><img src="../_/img/RHDLogo.svg" height="40px" alt="Red Hat Developer Program"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="https://redhat-scholars.github.io/course-template">LlamaStack Tutorial</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://developers.redhat.com/ebooks/" target="_blank">Books</a>
+        <a class="navbar-item" href="https://developers.redhat.com/cheatsheets/" target="_blank">Cheat Sheets</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">More Tutorials</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/kubernetes-tutorial/" target="_blank">Kubernetes</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/istio-tutorial/" target="_blank">Istio</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/quarkus-tutorial/" target="_blank">Quarkus</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/knative-tutorial/" target="_blank">Knative</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/tekton-tutorial/" target="_blank">Tekton</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="llamastack-tutorial" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html"></a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="01-introduction.html">1. Introduction</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#overview">LlamaStack Overview</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#architecture">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#prerequisites">Prerequisites</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="02-local-docker.html">2. Local Development with Docker</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#setup">Docker Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#configuration">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#testing">Testing Your Setup</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="03-local-podman.html">3. Local Development with Podman</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#setup">Podman Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#rootless-containers">Rootless Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#systemd-integration">Systemd Integration</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="04-podman-desktop.html">4. Podman Desktop</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#setup">Podman Desktop Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#gui">GUI Management</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#monitoring">Monitoring and Debugging</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#extensions">Extensions and Integrations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="05-kubernetes.html">5. Kubernetes Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#prerequisites">Prerequisites</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#manifests">Kubernetes Manifests</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#deployment">Production Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#scaling">Scaling and Performance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#monitoring">Monitoring and Observability</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="06-openshift.html">6. OpenShift Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#setup">OpenShift Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#deployment">Enterprise Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#security-compliance">Security and Compliance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#operators">OpenShift Operators</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="06-openshift.html#gitops">GitOps with OpenShift GitOps</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">LlamaStack Tutorial</a></li>
+    <li><a href="05-kubernetes.html">5. Kubernetes Deployment</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/redhat-scholars/llamastack-tutorial/edit/master/documentation/modules/ROOT/pages/05-kubernetes.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Kubernetes Deployment</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Learn how to deploy LlamaStack on Kubernetes for production workloads with scalability, reliability, and observability.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites"><a class="anchor" href="#prerequisites"></a>Prerequisites</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="cluster-setup"><a class="anchor" href="#cluster-setup"></a>Kubernetes Cluster Setup</h3>
+<div class="paragraph">
+<p>Ensure you have access to a Kubernetes cluster:</p>
+</div>
+<div class="tabset is-loading">
+<div class="ulist tabs">
+<ul>
+<li>
+<p><a id="tabset1_local-development"></a>Local Development</p>
+</li>
+<li>
+<p><a id="tabset1_cloud-providers"></a>Cloud Providers</p>
+</li>
+</ul>
+</div>
+<div class="content">
+<div class="tab-pane" aria-labelledby="tabset1_local-development">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Minikube
+minikube start --memory=8192 --cpus=4
+
+# Kind
+kind create cluster --config=kind-config.yaml
+
+# Docker Desktop
+# Enable Kubernetes in Docker Desktop settings</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_cloud-providers">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Google Cloud (GKE)
+gcloud container clusters create llamastack-cluster \
+  --num-nodes=3 \
+  --machine-type=e2-standard-4
+
+# AWS (EKS)
+eksctl create cluster --name llamastack-cluster \
+  --region us-west-2 \
+  --nodes 3 \
+  --node-type m5.xlarge
+
+# Azure (AKS)
+az aks create --resource-group myResourceGroup \
+  --name llamastack-cluster \
+  --node-count 3 \
+  --node-vm-size Standard_D4s_v3</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="tools-installation"><a class="anchor" href="#tools-installation"></a>Required Tools</h3>
+<div class="paragraph">
+<p>Install necessary command-line tools:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s <a href="https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"" class="bare">https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"</a>
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+# Helm (optional)
+curl <a href="https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz" class="bare">https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz</a> | tar xz
+sudo mv linux-amd64/helm /usr/local/bin/
+
+# Verify installation
+kubectl version --client
+helm version</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="manifests"><a class="anchor" href="#manifests"></a>Kubernetes Manifests</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="namespace"><a class="anchor" href="#namespace"></a>Namespace</h3>
+<div class="paragraph">
+<p>Create a dedicated namespace for LlamaStack:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+    app.kubernetes.io/component: ai-platform</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configmap"><a class="anchor" href="#configmap"></a>ConfigMap</h3>
+<div class="paragraph">
+<p>Store configuration in a ConfigMap:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llamastack-config
+  namespace: llamastack
+data:
+  llamastack.yaml: |
+    server:
+      host: 0.0.0.0
+      port: 11434
+
+    models:
+      providers:
+        - provider_type: ollama
+          config:
+            url: <a href="http://localhost:11434" class="bare">http://localhost:11434</a>
+        - provider_type: openai
+          config:
+            api_key: ${OPENAI_API_KEY}
+
+    tools:
+      providers:
+        - provider_type: filesystem
+          config:
+            base_path: /app/data
+        - provider_type: web_search
+          config:
+            api_key: ${SEARCH_API_KEY}
+
+    safety:
+      providers:
+        - provider_type: llama_guard
+          config:
+            model_id: meta-llama/LlamaGuard-7b
+
+    memory:
+      provider_type: redis
+      config:
+        host: redis-service
+        port: 6379</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="secret"><a class="anchor" href="#secret"></a>Secret</h3>
+<div class="paragraph">
+<p>Store sensitive information in Secrets:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: llamastack-secrets
+  namespace: llamastack
+type: Opaque
+data:
+  # Base64 encoded values
+  openai-api-key: &lt;base64-encoded-openai-key&gt;
+  search-api-key: &lt;base64-encoded-search-key&gt;
+  llamastack-api-key: &lt;base64-encoded-api-key&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Create the secret using kubectl:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Create secret from command line
+kubectl create secret generic llamastack-secrets \
+  --namespace=llamastack \
+  --from-literal=openai-api-key=your_openai_key \
+  --from-literal=search-api-key=your_search_key \
+  --from-literal=llamastack-api-key=your_api_key</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="redis-deployment"><a class="anchor" href="#redis-deployment"></a>Redis Deployment</h3>
+<div class="paragraph">
+<p>Deploy Redis for LlamaStack&#8217;s memory store:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># redis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: llamastack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: llamastack
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: llamastack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="llamastack-deployment"><a class="anchor" href="#llamastack-deployment"></a>LlamaStack Deployment</h3>
+<div class="paragraph">
+<p>Deploy the main LlamaStack application:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># llamastack-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llamastack
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+    app.kubernetes.io/component: api-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: llamastack
+  template:
+    metadata:
+      labels:
+        app: llamastack
+    spec:
+      containers:
+      - name: llamastack
+        image: llamastack/llamastack:latest
+        ports:
+        - containerPort: 11434
+          name: http
+        env:
+        - name: LLAMASTACK_PORT
+          value: "11434"
+        - name: LLAMASTACK_HOST
+          value: "0.0.0.0"
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: openai-api-key
+        - name: SEARCH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: search-api-key
+        - name: LLAMASTACK_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: llamastack-api-key
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: data-volume
+          mountPath: /app/data
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 11434
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 11434
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: config-volume
+        configMap:
+          name: llamastack-config
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: llamastack-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: llamastack-data-pvc
+  namespace: llamastack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="service"><a class="anchor" href="#service"></a>Service</h3>
+<div class="paragraph">
+<p>Expose LlamaStack within the cluster:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: llamastack-service
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+    app.kubernetes.io/component: api-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 11434
+    protocol: TCP
+    name: http
+  selector:
+    app: llamastack</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ingress"><a class="anchor" href="#ingress"></a>Ingress</h3>
+<div class="paragraph">
+<p>Expose LlamaStack externally using Ingress:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: llamastack-ingress
+  namespace: llamastack
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.llamastack.example.com
+    secretName: llamastack-tls
+  rules:
+  - host: api.llamastack.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: llamastack-service
+            port:
+              number: 80</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="deployment"><a class="anchor" href="#deployment"></a>Production Deployment</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="deploy-steps"><a class="anchor" href="#deploy-steps"></a>Deployment Steps</h3>
+<div class="paragraph">
+<p>Deploy all components in order:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Create namespace
+kubectl apply -f namespace.yaml
+
+# Deploy secrets and config
+kubectl apply -f secret.yaml
+kubectl apply -f configmap.yaml
+
+# Deploy Redis
+kubectl apply -f redis-deployment.yaml
+
+# Wait for Redis to be ready
+kubectl wait --for=condition=ready pod -l app=redis -n llamastack --timeout=300s
+
+# Deploy LlamaStack
+kubectl apply -f llamastack-deployment.yaml
+
+# Deploy service and ingress
+kubectl apply -f service.yaml
+kubectl apply -f ingress.yaml
+
+# Verify deployment
+kubectl get all -n llamastack</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="verify-deployment"><a class="anchor" href="#verify-deployment"></a>Verify Deployment</h3>
+<div class="paragraph">
+<p>Check that all components are running:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check pods status
+kubectl get pods -n llamastack
+
+# Check services
+kubectl get svc -n llamastack
+
+# Check ingress
+kubectl get ingress -n llamastack
+
+# View logs
+kubectl logs -f deployment/llamastack -n llamastack
+
+# Check health endpoint
+kubectl port-forward svc/llamastack-service 8080:80 -n llamastack
+curl <a href="http://localhost:8080/health" class="bare">http://localhost:8080/health</a></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="scaling"><a class="anchor" href="#scaling"></a>Scaling and Performance</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="horizontal-scaling"><a class="anchor" href="#horizontal-scaling"></a>Horizontal Pod Autoscaler</h3>
+<div class="paragraph">
+<p>Configure automatic scaling based on resource usage:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: llamastack-hpa
+  namespace: llamastack
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: llamastack
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 2
+        periodSeconds: 60</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="resource-optimization"><a class="anchor" href="#resource-optimization"></a>Resource Optimization</h3>
+<div class="paragraph">
+<p>Optimize resource allocation:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># Update deployment with optimized resources
+spec:
+  template:
+    spec:
+      containers:
+      - name: llamastack
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+            ephemeral-storage: "5Gi"
+        # Add resource quotas at namespace level
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: llamastack-quota
+  namespace: llamastack
+spec:
+  hard:
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    limits.cpu: "20"
+    limits.memory: 40Gi
+    persistentvolumeclaims: "10"</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="monitoring"><a class="anchor" href="#monitoring"></a>Monitoring and Observability</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="prometheus-monitoring"><a class="anchor" href="#prometheus-monitoring"></a>Prometheus Monitoring</h3>
+<div class="paragraph">
+<p>Add monitoring annotations and ServiceMonitor:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># Update deployment with monitoring annotations
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "11434"
+    prometheus.io/path: "/metrics"
+
+# ServiceMonitor for Prometheus Operator
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: llamastack-metrics
+  namespace: llamastack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: llamastack
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="logging"><a class="anchor" href="#logging"></a>Centralized Logging</h3>
+<div class="paragraph">
+<p>Configure structured logging:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># Add logging configuration to deployment
+env:
+- name: LLAMASTACK_LOG_FORMAT
+  value: "json"
+- name: LLAMASTACK_LOG_LEVEL
+  value: "INFO"
+
+# Fluentd/Fluent Bit annotation for log collection
+metadata:
+  annotations:
+    fluentbit.io/parser: "json"</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="security"><a class="anchor" href="#security"></a>Security</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="rbac"><a class="anchor" href="#rbac"></a>Role-Based Access Control</h3>
+<div class="paragraph">
+<p>Create RBAC resources:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: llamastack-sa
+  namespace: llamastack
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: llamastack-role
+  namespace: llamastack
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: llamastack-binding
+  namespace: llamastack
+subjects:
+- kind: ServiceAccount
+  name: llamastack-sa
+  namespace: llamastack
+roleRef:
+  kind: Role
+  name: llamastack-role
+  apiGroup: rbac.authorization.k8s.io</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="network-policies"><a class="anchor" href="#network-policies"></a>Network Policies</h3>
+<div class="paragraph">
+<p>Implement network segmentation:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: llamastack-network-policy
+  namespace: llamastack
+spec:
+  podSelector:
+    matchLabels:
+      app: llamastack
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - podSelector:
+        matchLabels:
+          app: llamastack
+    ports:
+    - protocol: TCP
+      port: 11434
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443  # HTTPS for external API calls
+    - protocol: TCP
+      port: 53   # DNS
+    - protocol: UDP
+      port: 53   # DNS</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="backup-disaster-recovery"><a class="anchor" href="#backup-disaster-recovery"></a>Backup and Disaster Recovery</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="backup-strategy"><a class="anchor" href="#backup-strategy"></a>Backup Strategy</h3>
+<div class="paragraph">
+<p>Implement automated backups:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># backup-cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: llamastack-backup
+  namespace: llamastack
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: postgres:13-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # Backup persistent volumes
+              tar czf /backup/llamastack-data-$(date +%Y%m%d).tar.gz -C /data .
+              tar czf /backup/redis-data-$(date +%Y%m%d).tar.gz -C /redis-data .
+
+              # Upload to cloud storage (example with AWS S3)
+              aws s3 cp /backup/ s3://my-backup-bucket/llamastack/ --recursive
+
+              # Cleanup old backups (keep 30 days)
+              find /backup -name "*.tar.gz" -mtime +30 -delete
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+            - name: llamastack-data
+              mountPath: /data
+              readOnly: true
+            - name: redis-data
+              mountPath: /redis-data
+              readOnly: true
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: backup-pvc
+          - name: llamastack-data
+            persistentVolumeClaim:
+              claimName: llamastack-data-pvc
+          - name: redis-data
+            persistentVolumeClaim:
+              claimName: redis-pvc
+          restartPolicy: OnFailure</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="disaster-recovery"><a class="anchor" href="#disaster-recovery"></a>Disaster Recovery</h3>
+<div class="paragraph">
+<p>Plan for disaster recovery scenarios:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Backup current state
+kubectl get all -n llamastack -o yaml &gt; llamastack-backup.yaml
+
+# Backup PVCs
+kubectl get pvc -n llamastack -o yaml &gt; pvc-backup.yaml
+
+# Test restore procedure
+kubectl delete namespace llamastack
+kubectl apply -f llamastack-backup.yaml
+
+# Verify restoration
+kubectl get all -n llamastack</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="maintenance"><a class="anchor" href="#maintenance"></a>Maintenance</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="rolling-updates"><a class="anchor" href="#rolling-updates"></a>Rolling Updates</h3>
+<div class="paragraph">
+<p>Perform zero-downtime updates:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Update image
+kubectl set image deployment/llamastack llamastack=llamastack/llamastack:v2.0.0 -n llamastack
+
+# Monitor rollout
+kubectl rollout status deployment/llamastack -n llamastack
+
+# Rollback if needed
+kubectl rollout undo deployment/llamastack -n llamastack
+
+# Check rollout history
+kubectl rollout history deployment/llamastack -n llamastack</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cluster-maintenance"><a class="anchor" href="#cluster-maintenance"></a>Cluster Maintenance</h3>
+<div class="paragraph">
+<p>Prepare for cluster maintenance:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Drain node safely
+kubectl drain &lt;node-name&gt; --ignore-daemonsets --delete-emptydir-data
+
+# Cordon node to prevent scheduling
+kubectl cordon &lt;node-name&gt;
+
+# Uncordon after maintenance
+kubectl uncordon &lt;node-name&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>Troubleshooting</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="common-issues"><a class="anchor" href="#common-issues"></a>Common Issues</h3>
+<div class="paragraph">
+<p><strong>Pod Startup Issues</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check pod events
+kubectl describe pod &lt;pod-name&gt; -n llamastack
+
+# Check logs
+kubectl logs &lt;pod-name&gt; -n llamastack --previous
+
+# Debug with temporary pod
+kubectl run debug --image=busybox -it --rm --restart=Never -- /bin/sh</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Networking Issues</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Test service connectivity
+kubectl run test-pod --image=curlimages/curl -it --rm --restart=Never -- \
+  curl <a href="http://llamastack-service.llamastack.svc.cluster.local/health" class="bare">http://llamastack-service.llamastack.svc.cluster.local/health</a>
+
+# Check DNS resolution
+nslookup llamastack-service.llamastack.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Storage Issues</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check PVC status
+kubectl get pvc -n llamastack
+
+# Describe PVC for events
+kubectl describe pvc llamastack-data-pvc -n llamastack
+
+# Check storage class
+kubectl get storageclass</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cleanup"><a class="anchor" href="#cleanup"></a>Cleanup</h2>
+<div class="sectionbody">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Delete all resources
+kubectl delete namespace llamastack
+
+# Or delete specific resources
+kubectl delete -f .
+
+# Verify cleanup
+kubectl get all -n llamastack</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="next-steps"><a class="anchor" href="#next-steps"></a>Next Steps</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Ready to explore enterprise deployment with OpenShift? Let&#8217;s continue:</p>
+</div>
+<div class="paragraph">
+<p><a href="06-openshift.html" class="xref page">Continue to OpenShift Deployment →</a></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="04-podman-desktop.html">4. Podman Desktop</a></span>
+  <span class="next"><a href="06-openshift.html">6. OpenShift Deployment</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>OpenShift Deployment :: LlamaStack Tutorial</title>
+    <link rel="canonical" href="https://redhat-scholars.github.io/course-template/llamastack-tutorial/06-openshift.html">
+    <link rel="prev" href="05-kubernetes.html">
+    <meta name="generator" content="Antora 3.0.0">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://developers.redhat.com" target="_blank"><img src="../_/img/RHDLogo.svg" height="40px" alt="Red Hat Developer Program"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="https://redhat-scholars.github.io/course-template">LlamaStack Tutorial</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://developers.redhat.com/ebooks/" target="_blank">Books</a>
+        <a class="navbar-item" href="https://developers.redhat.com/cheatsheets/" target="_blank">Cheat Sheets</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">More Tutorials</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/kubernetes-tutorial/" target="_blank">Kubernetes</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/istio-tutorial/" target="_blank">Istio</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/quarkus-tutorial/" target="_blank">Quarkus</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/knative-tutorial/" target="_blank">Knative</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/tekton-tutorial/" target="_blank">Tekton</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="llamastack-tutorial" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html"></a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="01-introduction.html">1. Introduction</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#overview">LlamaStack Overview</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#architecture">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduction.html#prerequisites">Prerequisites</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="02-local-docker.html">2. Local Development with Docker</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#setup">Docker Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#configuration">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-local-docker.html#testing">Testing Your Setup</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="03-local-podman.html">3. Local Development with Podman</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#setup">Podman Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#running">Running LlamaStack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#rootless-containers">Rootless Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="03-local-podman.html#systemd-integration">Systemd Integration</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="04-podman-desktop.html">4. Podman Desktop</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#setup">Podman Desktop Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#gui">GUI Management</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#monitoring">Monitoring and Debugging</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="04-podman-desktop.html#extensions">Extensions and Integrations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="05-kubernetes.html">5. Kubernetes Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#prerequisites">Prerequisites</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#manifests">Kubernetes Manifests</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#deployment">Production Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#scaling">Scaling and Performance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="05-kubernetes.html#monitoring">Monitoring and Observability</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="06-openshift.html">6. OpenShift Deployment</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#setup">OpenShift Setup</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#deployment">Enterprise Deployment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#security-compliance">Security and Compliance</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#operators">OpenShift Operators</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#gitops">GitOps with OpenShift GitOps</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">LlamaStack Tutorial</a></li>
+    <li><a href="06-openshift.html">6. OpenShift Deployment</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/redhat-scholars/llamastack-tutorial/edit/master/documentation/modules/ROOT/pages/06-openshift.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">OpenShift Deployment</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Learn how to deploy LlamaStack on Red Hat OpenShift for enterprise-grade AI platform deployment with enhanced security, developer experience, and operational capabilities.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites"><a class="anchor" href="#prerequisites"></a>Prerequisites</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="openshift-access"><a class="anchor" href="#openshift-access"></a>OpenShift Cluster Access</h3>
+<div class="paragraph">
+<p>Ensure you have access to an OpenShift cluster:</p>
+</div>
+<div class="tabset is-loading">
+<div class="ulist tabs">
+<ul>
+<li>
+<p><a id="tabset1_red-hat-openshift-local"></a>Red Hat OpenShift Local</p>
+</li>
+<li>
+<p><a id="tabset1_openshift-on-public-cloud"></a>OpenShift on Public Cloud</p>
+</li>
+<li>
+<p><a id="tabset1_self-managed-openshift"></a>Self-Managed OpenShift</p>
+</li>
+</ul>
+</div>
+<div class="content">
+<div class="tab-pane" aria-labelledby="tabset1_red-hat-openshift-local">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Download and install CRC (CodeReady Containers)
+# Visit: <a href="https://developers.redhat.com/products/openshift-local/overview" class="bare">https://developers.redhat.com/products/openshift-local/overview</a>
+
+# Start local cluster
+crc setup
+crc start
+
+# Get cluster credentials
+crc console --credentials</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_openshift-on-public-cloud">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Red Hat OpenShift Service on AWS (ROSA)
+rosa create cluster --cluster-name llamastack-cluster
+
+# Azure Red Hat OpenShift (ARO)
+az aro create --resource-group myResourceGroup \
+  --name llamastack-cluster \
+  --vnet aro-vnet \
+  --master-subnet master-subnet \
+  --worker-subnet worker-subnet
+
+# Google Cloud OpenShift (coming soon)</code></pre>
+</div>
+</div>
+</div>
+<div class="tab-pane" aria-labelledby="tabset1_self-managed-openshift">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Install OpenShift on your infrastructure
+# Follow the installation guide at:
+# https://docs.openshift.com/container-platform/latest/installing/</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cli-setup"><a class="anchor" href="#cli-setup"></a>OpenShift CLI Setup</h3>
+<div class="paragraph">
+<p>Install and configure the OpenShift CLI:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Download oc CLI
+curl -L <a href="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz" class="bare">https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz</a> | tar xz
+sudo mv oc kubectl /usr/local/bin/
+
+# Login to cluster
+oc login <a href="https://api.your-cluster.example.com:6443" class="bare">https://api.your-cluster.example.com:6443</a>
+
+# Verify connection
+oc whoami
+oc cluster-info</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="setup"><a class="anchor" href="#setup"></a>OpenShift Setup</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="project-creation"><a class="anchor" href="#project-creation"></a>Project Creation</h3>
+<div class="paragraph">
+<p>Create a dedicated project (namespace) for LlamaStack:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Create project
+oc new-project llamastack --display-name="LlamaStack AI Platform" \
+  --description="Enterprise AI platform deployment"
+
+# Set project as current
+oc project llamastack
+
+# Add resource quotas
+oc apply -f - &lt;&lt;EOF
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: llamastack-quota
+  namespace: llamastack
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 40Gi
+    limits.cpu: "40"
+    limits.memory: 80Gi
+    persistentvolumeclaims: "10"
+    secrets: "20"
+    configmaps: "20"
+EOF</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="security-context"><a class="anchor" href="#security-context"></a>Security Context Constraints</h3>
+<div class="paragraph">
+<p>Create appropriate Security Context Constraints:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># scc.yaml
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: llamastack-scc
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegeEscalation: false
+allowPrivilegedContainer: false
+allowedCapabilities: null
+defaultAddCapabilities: null
+fsGroup:
+  type: MustRunAs
+  ranges:
+    - min: 1000
+    - max: 2000
+readOnlyRootFilesystem: false
+requiredDropCapabilities:
+  - KILL
+  - MKNOD
+  - SETUID
+  - SETGID
+runAsUser:
+  type: MustRunAsRange
+  uidRangeMin: 1000
+  uidRangeMax: 2000
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: RunAsAny
+volumes:
+  - configMap
+  - downwardAPI
+  - emptyDir
+  - persistentVolumeClaim
+  - projected
+  - secret
+users:
+  - system:serviceaccount:llamastack:llamastack-sa</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Apply the SCC:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f scc.yaml
+oc adm policy add-scc-to-user llamastack-scc system:serviceaccount:llamastack:llamastack-sa</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="deployment"><a class="anchor" href="#deployment"></a>Enterprise Deployment</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="imagestreams"><a class="anchor" href="#imagestreams"></a>ImageStreams</h3>
+<div class="paragraph">
+<p>Create ImageStreams for container image management:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># imagestreams.yaml
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: llamastack
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - name: latest
+    from:
+      kind: DockerImage
+      name: llamastack/llamastack:latest
+    importPolicy:
+      scheduled: true
+      insecure: false
+    referencePolicy:
+      type: Source
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: redis
+  namespace: llamastack
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - name: "7-alpine"
+    from:
+      kind: DockerImage
+      name: redis:7-alpine
+    importPolicy:
+      scheduled: true</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="deploymentconfig"><a class="anchor" href="#deploymentconfig"></a>DeploymentConfig</h3>
+<div class="paragraph">
+<p>Use OpenShift&#8217;s DeploymentConfig for enhanced deployment features:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># deploymentconfig.yaml
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: llamastack
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+    app.kubernetes.io/component: api-server
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  selector:
+    app: llamastack
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 300
+      maxUnavailable: 25%
+      maxSurge: 25%
+      pre:
+        failurePolicy: Abort
+        execNewPod:
+          command:
+          - /bin/sh
+          - -c
+          - "echo 'Pre-deployment check'; curl -f <a href="http://redis-service:6379" class="bare">http://redis-service:6379</a> || exit 1"
+          containerName: llamastack
+  template:
+    metadata:
+      labels:
+        app: llamastack
+    spec:
+      serviceAccountName: llamastack-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: llamastack
+        image: llamastack:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 11434
+          name: http
+          protocol: TCP
+        env:
+        - name: LLAMASTACK_PORT
+          value: "11434"
+        - name: LLAMASTACK_HOST
+          value: "0.0.0.0"
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: openai-api-key
+        - name: SEARCH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: search-api-key
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: data-volume
+          mountPath: /app/data
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 11434
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 11434
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: config-volume
+        configMap:
+          name: llamastack-config
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: llamastack-data-pvc
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+      - llamastack
+      from:
+        kind: ImageStreamTag
+        name: llamastack:latest
+        namespace: llamastack</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="routes"><a class="anchor" href="#routes"></a>Routes (OpenShift Ingress)</h3>
+<div class="paragraph">
+<p>Create Routes for external access:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># route.yaml
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: llamastack-api
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+  annotations:
+    haproxy.router.openshift.io/timeout: "300s"
+    haproxy.router.openshift.io/rate-limit-connections: "true"
+    haproxy.router.openshift.io/rate-limit-connections.concurrent-tcp: "10"
+spec:
+  host: api.llamastack.apps.your-cluster.example.com
+  to:
+    kind: Service
+    name: llamastack-service
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: llamastack-ui
+  namespace: llamastack
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /ui
+spec:
+  host: ui.llamastack.apps.your-cluster.example.com
+  path: /
+  to:
+    kind: Service
+    name: llamastack-service
+  port:
+    targetPort: http
+  tls:
+    termination: edge</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="buildconfig"><a class="anchor" href="#buildconfig"></a>BuildConfig for Custom Images</h3>
+<div class="paragraph">
+<p>Create custom builds with BuildConfig:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># buildconfig.yaml
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: llamastack-custom
+  namespace: llamastack
+spec:
+  source:
+    type: Git
+    git:
+      uri: <a href="https://github.com/your-org/llamastack-custom.git" class="bare">https://github.com/your-org/llamastack-custom.git</a>
+      ref: main
+    contextDir: "."
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+      env:
+      - name: BUILD_ENV
+        value: "production"
+  output:
+    to:
+      kind: ImageStreamTag
+      name: llamastack:custom
+  triggers:
+  - type: ConfigChange
+  - type: GitHub
+    github:
+      secret: webhook-secret
+  - type: Generic
+    generic:
+      secret: webhook-secret
+  - type: ImageChange
+    imageChange:
+      from:
+        kind: ImageStreamTag
+        name: llamastack:latest</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="monitoring-logging"><a class="anchor" href="#monitoring-logging"></a>Monitoring and Logging</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="openshift-monitoring"><a class="anchor" href="#openshift-monitoring"></a>OpenShift Monitoring Integration</h3>
+<div class="paragraph">
+<p>Enable monitoring for your application:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: llamastack-metrics
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: llamastack
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    scheme: http
+    tlsConfig:
+      insecureSkipVerify: true
+  namespaceSelector:
+    matchNames:
+    - llamastack</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="custom-metrics"><a class="anchor" href="#custom-metrics"></a>Custom Dashboards</h3>
+<div class="paragraph">
+<p>Create Grafana dashboards for LlamaStack:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># grafana-dashboard.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llamastack-dashboard
+  namespace: llamastack
+  labels:
+    grafana_dashboard: "true"
+data:
+  llamastack-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "LlamaStack Metrics",
+        "panels": [
+          {
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(llamastack_requests_total[5m])",
+                "legendFormat": "{{method}} {{status}}"
+              }
+            ]
+          },
+          {
+            "title": "Response Time",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(llamastack_request_duration_seconds_bucket[5m]))",
+                "legendFormat": "95th percentile"
+              }
+            ]
+          }
+        ]
+      }
+    }</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="openshift-logging"><a class="anchor" href="#openshift-logging"></a>OpenShift Logging</h3>
+<div class="paragraph">
+<p>Configure application logging:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># Update deployment with logging configuration
+env:
+- name: LLAMASTACK_LOG_FORMAT
+  value: "json"
+- name: LLAMASTACK_LOG_LEVEL
+  value: "INFO"
+
+# ClusterLogForwarder for custom log forwarding
+apiVersion: logging.coreos.com/v1
+kind: ClusterLogForwarder
+metadata:
+  name: llamastack-logs
+  namespace: openshift-logging
+spec:
+  outputs:
+  - name: llamastack-elasticsearch
+    type: elasticsearch
+    url: https://elasticsearch.logging.example.com:9200
+    secret:
+      name: elasticsearch-secret
+  pipelines:
+  - name: llamastack-pipeline
+    inputRefs:
+    - application
+    filterRefs:
+    - llamastack-filter
+    outputRefs:
+    - llamastack-elasticsearch
+  filters:
+  - name: llamastack-filter
+    type: "json"
+    json:
+      javascript: |
+        const log = record.log;
+        if (log &amp;&amp; log.kubernetes &amp;&amp; log.kubernetes.namespace_name === 'llamastack') {
+          return record;
+        }
+        return null;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="security-compliance"><a class="anchor" href="#security-compliance"></a>Security and Compliance</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="pod-security"><a class="anchor" href="#pod-security"></a>Pod Security Standards</h3>
+<div class="paragraph">
+<p>Implement pod security standards:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># Update project with security labels
+oc label namespace llamastack \
+  pod-security.kubernetes.io/enforce=restricted \
+  pod-security.kubernetes.io/audit=restricted \
+  pod-security.kubernetes.io/warn=restricted
+
+# Security context for deployment
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+containers:
+- name: llamastack
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 1000</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="network-policies"><a class="anchor" href="#network-policies"></a>Network Policies</h3>
+<div class="paragraph">
+<p>Implement micro-segmentation:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># network-policies.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: llamastack-netpol
+  namespace: llamastack
+spec:
+  podSelector:
+    matchLabels:
+      app: llamastack
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: openshift-ingress
+      podSelector:
+        matchLabels:
+          ingresscontroller.operator.openshift.io/deployment-ingresscontroller: default
+    ports:
+    - protocol: TCP
+      port: 11434
+  - from:
+    - podSelector:
+        matchLabels:
+          app: llamastack
+    ports:
+    - protocol: TCP
+      port: 11434
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="compliance-scanning"><a class="anchor" href="#compliance-scanning"></a>Compliance Scanning</h3>
+<div class="paragraph">
+<p>Enable OpenShift compliance scanning:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># compliance-scan.yaml
+apiVersion: compliance.openshift.io/v1alpha1
+kind: ComplianceScan
+metadata:
+  name: llamastack-compliance
+  namespace: llamastack
+spec:
+  profile: xccdf_org.ssgproject.content_profile_moderate
+  content: ssg-ocp4-ds.xml
+  rule: "xccdf_org.ssgproject.content_rule_.*"
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+  schedule: "0 1 * * 0"  # Weekly on Sunday at 1 AM</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="operators"><a class="anchor" href="#operators"></a>OpenShift Operators</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="custom-operator"><a class="anchor" href="#custom-operator"></a>LlamaStack Operator</h3>
+<div class="paragraph">
+<p>Create a custom operator for LlamaStack management:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># llamastack-operator.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: llamastacks.ai.example.com
+spec:
+  group: ai.example.com
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              replicas:
+                type: integer
+                minimum: 1
+                maximum: 10
+              modelProviders:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: ["openai", "anthropic", "ollama"]
+                    config:
+                      type: object
+              resources:
+                type: object
+                properties:
+                  requests:
+                    type: object
+                  limits:
+                    type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Pending", "Running", "Failed"]
+              replicas:
+                type: integer
+  scope: Namespaced
+  names:
+    plural: llamastacks
+    singular: llamastack
+    kind: LlamaStack
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llamastack-operator
+  namespace: llamastack-operator-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: llamastack-operator
+  template:
+    metadata:
+      labels:
+        control-plane: llamastack-operator
+    spec:
+      containers:
+      - name: operator
+        image: llamastack/operator:latest
+        command:
+        - /manager
+        args:
+        - --leader-elect
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="gitops"><a class="anchor" href="#gitops"></a>GitOps with OpenShift GitOps</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="argocd-setup"><a class="anchor" href="#argocd-setup"></a>ArgoCD Application</h3>
+<div class="paragraph">
+<p>Deploy LlamaStack using GitOps:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># argocd-application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: llamastack
+  namespace: openshift-gitops
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: <a href="https://github.com/your-org/llamastack-manifests.git" class="bare">https://github.com/your-org/llamastack-manifests.git</a>
+    targetRevision: main
+    path: manifests/openshift
+  destination:
+    server: <a href="https://kubernetes.default.svc" class="bare">https://kubernetes.default.svc</a>
+    namespace: llamastack
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="pipeline"><a class="anchor" href="#pipeline"></a>OpenShift Pipelines (Tekton)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="tekton-pipeline"><a class="anchor" href="#tekton-pipeline"></a>CI/CD Pipeline</h3>
+<div class="paragraph">
+<p>Create a complete CI/CD pipeline:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># pipeline.yaml
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: llamastack-pipeline
+  namespace: llamastack
+spec:
+  params:
+  - name: git-url
+    type: string
+    description: Git repository URL
+  - name: git-revision
+    type: string
+    description: Git revision to checkout
+    default: main
+  - name: image-name
+    type: string
+    description: Output image name
+  workspaces:
+  - name: shared-workspace
+  - name: git-credentials
+    optional: true
+  tasks:
+  - name: fetch-source
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    - name: basic-auth
+      workspace: git-credentials
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: revision
+      value: $(params.git-revision)
+    - name: deleteExisting
+      value: "true"
+
+  - name: build-image
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    runAfter:
+    - fetch-source
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: IMAGE
+      value: $(params.image-name)
+    - name: DOCKERFILE
+      value: ./Dockerfile
+    - name: CONTEXT
+      value: .
+
+  - name: deploy-to-dev
+    taskRef:
+      name: openshift-client
+      kind: ClusterTask
+    runAfter:
+    - build-image
+    params:
+    - name: SCRIPT
+      value: |
+        oc patch dc/llamastack -p '{"spec":{"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["llamastack"],"from":{"kind":"ImageStreamTag","name":"$(params.image-name)"}}}]}}'
+        oc rollout latest dc/llamastack
+        oc wait --for=condition=available --timeout=300s dc/llamastack
+
+  - name: run-tests
+    taskRef:
+      name: pytest
+    runAfter:
+    - deploy-to-dev
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+
+  - name: security-scan
+    taskRef:
+      name: trivy-scanner
+    runAfter:
+    - build-image
+    params:
+    - name: IMAGE
+      value: $(params.image-name)
+
+  - name: deploy-to-prod
+    taskRef:
+      name: openshift-client
+      kind: ClusterTask
+    runAfter:
+    - run-tests
+    - security-scan
+    when:
+    - input: $(params.git-revision)
+      operator: in
+      values: ["main", "release"]
+    params:
+    - name: SCRIPT
+      value: |
+        oc project llamastack-prod
+        oc patch dc/llamastack -p '{"spec":{"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["llamastack"],"from":{"kind":"ImageStreamTag","name":"$(params.image-name)"}}}]}}'
+        oc rollout latest dc/llamastack
+        oc wait --for=condition=available --timeout=300s dc/llamastack</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="disaster-recovery"><a class="anchor" href="#disaster-recovery"></a>Disaster Recovery</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="etcd-backup"><a class="anchor" href="#etcd-backup"></a>ETCD Backup</h3>
+<div class="paragraph">
+<p>OpenShift provides automated ETCD backups:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check backup status
+oc get etcdbackup -n openshift-etcd
+
+# Manual backup (if needed)
+oc create -f - &lt;&lt;EOF
+apiVersion: operator.openshift.io/v1alpha1
+kind: EtcdBackup
+metadata:
+  name: backup-$(date +%Y%m%d-%H%M%S)
+  namespace: openshift-etcd
+spec: {}
+EOF</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="application-backup"><a class="anchor" href="#application-backup"></a>Application Backup</h3>
+<div class="paragraph">
+<p>Use OADP (OpenShift API for Data Protection):</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># oadp-backup.yaml
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: llamastack-backup
+  namespace: openshift-adp
+spec:
+  hooks: {}
+  includedNamespaces:
+  - llamastack
+  includedResources:
+  - persistentvolumeclaims
+  - persistentvolumes
+  - deploymentconfigs
+  - secrets
+  - configmaps
+  - services
+  - routes
+  - imagestreams
+  storageLocation: default
+  ttl: 720h0m0s
+  volumeSnapshotLocations:
+  - default</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="performance-tuning"><a class="anchor" href="#performance-tuning"></a>Performance Tuning</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="node-tuning"><a class="anchor" href="#node-tuning"></a>Node Tuning Operator</h3>
+<div class="paragraph">
+<p>Optimize nodes for AI workloads:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># node-tuning.yaml
+apiVersion: tuned.openshift.io/v1
+kind: Tuned
+metadata:
+  name: llamastack-performance
+  namespace: openshift-cluster-node-tuning-operator
+spec:
+  profile:
+  - name: llamastack-performance
+    data: |
+      [main]
+      summary=Optimize for LlamaStack AI workloads
+
+      [cpu]
+      governor=performance
+      energy_perf_bias=performance
+
+      [vm]
+      transparent_hugepages=always
+      swappiness=1
+
+      [sysctl]
+      vm.max_map_count=1048575
+      net.core.rmem_max=134217728
+      net.core.wmem_max=134217728
+
+  recommend:
+  - match:
+    - label: node-role.kubernetes.io/worker
+    - label: workload.openshift.io/llamastack
+    priority: 20
+    profile: llamastack-performance</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cluster-autoscaling"><a class="anchor" href="#cluster-autoscaling"></a>Cluster Autoscaling</h3>
+<div class="paragraph">
+<p>Configure cluster autoscaling:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># cluster-autoscaler.yaml
+apiVersion: autoscaling.openshift.io/v1
+kind: ClusterAutoscaler
+metadata:
+  name: default
+spec:
+  podPriorityThreshold: -10
+  resourceLimits:
+    maxNodesTotal: 20
+    cores:
+      min: 8
+      max: 128
+    memory:
+      min: 4
+      max: 256
+  scaleDown:
+    enabled: true
+    delayAfterAdd: 10m
+    delayAfterDelete: 10s
+    delayAfterFailure: 30s
+    unneededTime: 60s</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>Troubleshooting</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="openshift-specific"><a class="anchor" href="#openshift-specific"></a>OpenShift-Specific Troubleshooting</h3>
+<div class="paragraph">
+<p><strong>Route Issues</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check route status
+oc get routes
+oc describe route llamastack-api
+
+# Test route connectivity
+curl -I <a href="https://$(oc" class="bare">https://$(oc</a> get route llamastack-api -o jsonpath='{.spec.host}')
+
+# Check router logs
+oc logs -n openshift-ingress-operator deployment/ingress-operator</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Build Issues</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check build status
+oc get builds
+oc describe build llamastack-custom-1
+
+# View build logs
+oc logs build/llamastack-custom-1
+
+# Debug build
+oc debug build/llamastack-custom-1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Image Pull Issues</strong></p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check image stream
+oc get is
+oc describe is llamastack
+
+# Import image manually
+oc import-image llamastack:latest --confirm
+
+# Check registry connectivity
+oc debug node/worker-node -- chroot /host curl -k <a href="https://image-registry.openshift-image-registry.svc:5000/v2/" class="bare">https://image-registry.openshift-image-registry.svc:5000/v2/</a></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrade-migration"><a class="anchor" href="#upgrade-migration"></a>Upgrade and Migration</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="cluster-upgrade"><a class="anchor" href="#cluster-upgrade"></a>Cluster Upgrade</h3>
+<div class="paragraph">
+<p>Prepare for OpenShift cluster upgrades:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check upgrade path
+oc adm upgrade
+
+# Plan upgrade
+oc patch clusterversion version --type merge -p '{"spec":{"desiredUpdate":{"version":"4.14.0"}}}'
+
+# Monitor upgrade
+oc get clusterversion
+oc get co  # cluster operators
+oc get nodes</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="application-migration"><a class="anchor" href="#application-migration"></a>Application Migration</h3>
+<div class="paragraph">
+<p>Migrate between OpenShift clusters:</p>
+</div>
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Export resources
+oc get all,pvc,secrets,configmaps -o yaml -n llamastack &gt; llamastack-export.yaml
+
+# Create migration script
+#!/bin/bash
+# Remove cluster-specific fields
+yq eval 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.generation,.status)' llamastack-export.yaml &gt; llamastack-clean.yaml
+
+# Apply to new cluster
+oc apply -f llamastack-clean.yaml -n llamastack</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cleanup"><a class="anchor" href="#cleanup"></a>Cleanup</h2>
+<div class="sectionbody">
+<div class="listingblock console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Delete project and all resources
+oc delete project llamastack
+
+# Clean up cluster-scoped resources
+oc delete scc llamastack-scc
+oc delete tuned llamastack-performance -n openshift-cluster-node-tuning-operator
+
+# Verify cleanup
+oc get projects | grep llamastack</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="conclusion"><a class="anchor" href="#conclusion"></a>Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You&#8217;ve successfully learned how to deploy LlamaStack on OpenShift with enterprise-grade features including:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Security</strong>: SCC, network policies, compliance scanning</p>
+</li>
+<li>
+<p><strong>Monitoring</strong>: Integrated with OpenShift monitoring stack</p>
+</li>
+<li>
+<p><strong>GitOps</strong>: Automated deployment with ArgoCD</p>
+</li>
+<li>
+<p><strong>CI/CD</strong>: Complete pipelines with OpenShift Pipelines</p>
+</li>
+<li>
+<p><strong>Backup/Recovery</strong>: OADP integration for data protection</p>
+</li>
+<li>
+<p><strong>Performance</strong>: Node tuning and autoscaling</p>
+</li>
+<li>
+<p><strong>Compliance</strong>: Built-in security and compliance features</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This completes the comprehensive LlamaStack deployment tutorial covering local development through enterprise production deployment.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="05-kubernetes.html">5. Kubernetes Deployment</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
