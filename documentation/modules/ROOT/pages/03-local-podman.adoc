@@ -1,0 +1,556 @@
+= Local Development with Podman
+include::_attributes.adoc[]
+
+Learn how to set up and run LlamaStack locally using Podman, a daemonless container engine that's compatible with Docker.
+
+[#setup]
+== Podman Setup
+
+[#install-podman]
+=== Installing Podman
+
+Podman is a daemonless, rootless container engine that provides a Docker-compatible CLI experience.
+
+[tabs]
+====
+Linux::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Ubuntu/Debian
+sudo apt update
+sudo apt install podman podman-compose
+
+# RHEL/CentOS/Fedora
+sudo dnf install podman podman-compose
+
+# Arch Linux
+sudo pacman -S podman podman-compose
+
+# Configure for rootless operation
+echo $USER:10000:5000 | sudo tee /etc/subuid
+echo $USER:10000:5000 | sudo tee /etc/subgid
+----
+
+macOS::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Install using Homebrew
+brew install podman
+
+# Initialize Podman machine (required on macOS)
+podman machine init
+podman machine start
+----
+
+Windows::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Install using Chocolatey
+choco install podman-desktop
+
+# Or download from GitHub releases
+# https://github.com/containers/podman/releases
+----
+====
+
+[#verify-installation]
+=== Verify Installation
+
+Check that Podman is working correctly:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+podman --version
+podman-compose --version
+
+# Test container run
+podman run hello-world
+
+# Check system information
+podman system info
+----
+
+[#docker-compatibility]
+=== Docker Compatibility
+
+Podman provides Docker-compatible commands. You can create an alias for seamless migration:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Add to your shell profile (~/.bashrc, ~/.zshrc)
+alias docker=podman
+alias docker-compose=podman-compose
+
+# Or use the Docker API compatibility
+systemctl --user enable --now podman.socket
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
+----
+
+[#running]
+== Running LlamaStack
+
+[#podman-compose]
+=== Using Podman Compose
+
+Create the same `docker-compose.yml` file as in the Docker tutorial, but run it with Podman:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+version: '3.8'
+
+services:
+  llamastack:
+    image: llamastack/llamastack:latest
+    ports:
+      - "11434:11434"
+    environment:
+      - LLAMASTACK_PORT=11434
+      - LLAMASTACK_HOST=0.0.0.0
+    volumes:
+      - llamastack_data:/app/data
+      - ./config:/app/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  llamastack_data:
+  redis_data:
+----
+
+Start with Podman Compose:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Start services
+podman-compose up -d
+
+# View logs
+podman-compose logs -f llamastack
+
+# Check status
+podman-compose ps
+----
+
+[#manual-pods]
+=== Manual Pod Management
+
+Podman's unique feature is its pod concept, similar to Kubernetes pods:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Create a pod
+podman pod create --name llamastack-pod -p 11434:11434 -p 6379:6379
+
+# Run Redis in the pod
+podman run -d --pod llamastack-pod \
+  --name redis \
+  -v redis_data:/data \
+  redis:7-alpine
+
+# Run LlamaStack in the pod
+podman run -d --pod llamastack-pod \
+  --name llamastack \
+  -v llamastack_data:/app/data \
+  -v ./config:/app/config \
+  -e LLAMASTACK_PORT=11434 \
+  -e LLAMASTACK_HOST=0.0.0.0 \
+  llamastack/llamastack:latest
+
+# Check pod status
+podman pod ps
+podman ps --pod
+----
+
+[#rootless-containers]
+== Rootless Containers
+
+[#security-benefits]
+=== Security Benefits
+
+Podman runs containers without root privileges by default:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check user namespaces
+podman system info | grep -i rootless
+
+# Run containers as non-root user
+podman run --rm -it alpine id
+----
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+uid=0(root) gid=0(root) groups=0(root)
+# But this is mapped to your user ID on the host
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check actual process owner on host
+ps aux | grep -i llamastack
+----
+
+[#volume-permissions]
+=== Volume Permissions
+
+Handle volume permissions correctly in rootless mode:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Create directories with correct permissions
+mkdir -p config data logs
+chmod 755 config data logs
+
+# Use :Z flag for SELinux systems
+podman run -v ./config:/app/config:Z llamastack/llamastack:latest
+
+# For user namespace mapping
+podman run --userns=keep-id -v ./config:/app/config llamastack/llamastack:latest
+----
+
+[#systemd-integration]
+== Systemd Integration
+
+[#generate-systemd-units]
+=== Generate Systemd Units
+
+Podman can generate systemd service files for automatic startup:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Generate unit files for running containers
+podman generate systemd --new --files --name llamastack
+
+# Or for pods
+podman generate systemd --new --files --name llamastack-pod
+
+# Move to systemd directory
+mv *.service ~/.config/systemd/user/
+
+# Reload and enable
+systemctl --user daemon-reload
+systemctl --user enable container-llamastack.service
+systemctl --user start container-llamastack.service
+----
+
+[#user-services]
+=== User Services
+
+Enable lingering for user services to start at boot:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Enable lingering for your user
+sudo loginctl enable-linger $USER
+
+# Check service status
+systemctl --user status container-llamastack.service
+
+# View logs
+journalctl --user -u container-llamastack.service -f
+----
+
+[#networking]
+== Networking
+
+[#custom-networks]
+=== Custom Networks
+
+Create custom networks for better isolation:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Create a custom network
+podman network create llamastack-net
+
+# Run containers on the custom network
+podman run -d --network llamastack-net \
+  --name redis \
+  redis:7-alpine
+
+podman run -d --network llamastack-net \
+  --name llamastack \
+  -p 11434:11434 \
+  llamastack/llamastack:latest
+
+# Check network details
+podman network inspect llamastack-net
+----
+
+[#port-forwarding]
+=== Port Forwarding
+
+Configure port forwarding for external access:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Expose on specific interface
+podman run -p 127.0.0.1:11434:11434 llamastack/llamastack:latest
+
+# Expose on all interfaces
+podman run -p 0.0.0.0:11434:11434 llamastack/llamastack:latest
+
+# Use different host port
+podman run -p 8080:11434 llamastack/llamastack:latest
+----
+
+[#performance-tuning]
+== Performance Tuning
+
+[#resource-limits]
+=== Resource Limits
+
+Set resource constraints for containers:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Limit memory and CPU
+podman run -d \
+  --memory=4g \
+  --cpus=2 \
+  --name llamastack \
+  llamastack/llamastack:latest
+
+# Set CPU shares (relative weight)
+podman run -d \
+  --cpu-shares=1024 \
+  --name llamastack \
+  llamastack/llamastack:latest
+----
+
+[#storage-optimization]
+=== Storage Optimization
+
+Optimize storage for better performance:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Use overlay storage driver
+podman info | grep -i "storage driver"
+
+# Configure storage in ~/.config/containers/storage.conf
+[storage]
+driver = "overlay"
+runroot = "/tmp/containers-user-$UID/storage"
+graphroot = "$HOME/.local/share/containers/storage"
+
+[storage.options]
+mount_program = "/usr/bin/fuse-overlayfs"
+----
+
+[#monitoring]
+== Monitoring
+
+[#resource-monitoring]
+=== Resource Monitoring
+
+Monitor container resource usage:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Real-time stats
+podman stats
+
+# Container logs
+podman logs -f llamastack
+
+# System events
+podman events --since 30m
+
+# Resource usage for specific container
+podman inspect llamastack | jq '.[0].State.Health'
+----
+
+[#health-checks]
+=== Health Checks
+
+Implement health monitoring:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Built-in health check
+podman run -d \
+  --health-cmd="curl -f http://localhost:11434/health || exit 1" \
+  --health-interval=30s \
+  --health-timeout=10s \
+  --health-retries=3 \
+  llamastack/llamastack:latest
+
+# Check health status
+podman healthcheck run llamastack
+----
+
+[#backup-restore]
+== Backup and Restore
+
+[#container-export]
+=== Container Export
+
+Export and import containers:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Export running container
+podman export llamastack > llamastack-backup.tar
+
+# Import container
+podman import llamastack-backup.tar llamastack:backup
+
+# Save image
+podman save -o llamastack-image.tar llamastack/llamastack:latest
+
+# Load image
+podman load -i llamastack-image.tar
+----
+
+[#volume-backup]
+=== Volume Backup
+
+Backup persistent data:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Create backup
+podman run --rm \
+  -v llamastack_data:/source:ro \
+  -v $(pwd):/backup \
+  alpine tar czf /backup/llamastack-data.tar.gz -C /source .
+
+# Restore backup
+podman volume create llamastack_data_restored
+podman run --rm \
+  -v llamastack_data_restored:/target \
+  -v $(pwd):/backup \
+  alpine tar xzf /backup/llamastack-data.tar.gz -C /target
+----
+
+[#troubleshooting]
+== Troubleshooting
+
+[#common-issues]
+=== Common Podman Issues
+
+**Rootless Permission Issues**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check user namespaces
+cat /etc/subuid
+cat /etc/subgid
+
+# Reset user namespaces
+podman system reset
+----
+
+**Network Connectivity**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check network configuration
+podman network ls
+podman network inspect podman
+
+# Reset networking
+podman system reset --force
+----
+
+**Storage Issues**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check storage
+podman system df
+podman system info
+
+# Clean up storage
+podman system prune -a
+----
+
+[#migration-from-docker]
+== Migration from Docker
+
+[#automatic-migration]
+=== Automatic Migration
+
+Migrate existing Docker setups:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Use docker-compose files directly
+podman-compose -f docker-compose.yml up
+
+# Import Docker images
+docker save image_name | podman load
+
+# Convert Docker volumes
+docker run --rm -v docker_volume:/source -v $(pwd):/backup alpine tar czf /backup/volume.tar.gz -C /source .
+podman volume create podman_volume
+podman run --rm -v podman_volume:/target -v $(pwd):/backup alpine tar xzf /backup/volume.tar.gz -C /target
+----
+
+[#cleanup]
+== Cleanup
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Stop all containers
+podman stop --all
+
+# Remove all containers
+podman rm --all
+
+# Remove all images
+podman rmi --all
+
+# Remove all volumes
+podman volume prune
+
+# Complete system reset
+podman system reset
+----
+
+[#next-steps]
+== Next Steps
+
+Ready to explore GUI-based container management? Let's look at Podman Desktop:
+
+xref:04-podman-desktop.adoc[Continue to Podman Desktop →]

@@ -1,0 +1,72 @@
+= Introduction to LlamaStack
+include::_attributes.adoc[]
+
+[#overview]
+== LlamaStack Overview
+
+LlamaStack is a standardized interface for AI agents to interact with various tools and models. It provides a unified way to build, deploy, and manage AI applications across different environments.
+
+LlamaStack offers:
+
+* **Standardized APIs**: Consistent interfaces for model inference, tool calling, and data management
+* **Multi-model Support**: Works with various LLM providers and model formats
+* **Flexible Deployment**: Supports local development and production environments
+* **Tool Integration**: Easy integration with external tools and services
+* **Scalable Architecture**: Designed for both development and production workloads
+
+[#architecture]
+== Architecture
+
+LlamaStack consists of several key components:
+
+* **API Server**: RESTful API that handles requests and responses
+* **Model Providers**: Interfaces to different LLM services (OpenAI, Anthropic, local models)
+* **Tool Providers**: Connectors for external tools and services
+* **Data Stores**: Storage backends for conversations, documents, and metadata
+* **Safety Providers**: Content filtering and safety mechanisms
+
+[#prerequisites]
+== Prerequisites
+
+Before starting this tutorial, ensure you have:
+
+=== System Requirements
+
+* **Operating System**: Linux, macOS, or Windows with WSL2
+* **Memory**: At least 8GB RAM (16GB recommended for local models)
+* **Storage**: 10GB+ free disk space
+* **CPU**: Multi-core processor (GPU optional for local inference)
+
+=== Software Requirements
+
+* **Container Runtime**: Docker or Podman
+* **Python**: 3.8+ (for development and testing)
+* **Git**: For cloning repositories
+* **curl or wget**: For downloading models and testing APIs
+
+=== For Kubernetes/OpenShift Deployment
+
+* **kubectl**: Kubernetes CLI tool
+* **oc**: OpenShift CLI (for OpenShift deployments)
+* **Helm**: Package manager for Kubernetes (optional)
+* **Access**: Valid kubeconfig or OpenShift cluster access
+
+[#tutorial-structure]
+== Tutorial Structure
+
+This tutorial is organized into the following sections:
+
+1. **Local Development with Docker**: Get started quickly with Docker containers
+2. **Local Development with Podman**: Alternative container runtime setup
+3. **Podman Desktop**: GUI-based container management
+4. **Kubernetes Deployment**: Production-ready Kubernetes deployment
+5. **OpenShift Deployment**: Enterprise OpenShift platform deployment
+
+Each section builds upon the previous ones, so we recommend following them in order for the best learning experience.
+
+[#next-steps]
+== Next Steps
+
+Ready to get started? Let's begin with local development using Docker:
+
+xref:02-local-docker.adoc[Continue to Docker Setup →]

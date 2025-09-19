@@ -1,0 +1,1209 @@
+= OpenShift Deployment
+include::_attributes.adoc[]
+
+Learn how to deploy LlamaStack on Red Hat OpenShift for enterprise-grade AI platform deployment with enhanced security, developer experience, and operational capabilities.
+
+[#prerequisites]
+== Prerequisites
+
+[#openshift-access]
+=== OpenShift Cluster Access
+
+Ensure you have access to an OpenShift cluster:
+
+[tabs]
+====
+Red Hat OpenShift Local::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Download and install CRC (CodeReady Containers)
+# Visit: https://developers.redhat.com/products/openshift-local/overview
+
+# Start local cluster
+crc setup
+crc start
+
+# Get cluster credentials
+crc console --credentials
+----
+
+OpenShift on Public Cloud::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Red Hat OpenShift Service on AWS (ROSA)
+rosa create cluster --cluster-name llamastack-cluster
+
+# Azure Red Hat OpenShift (ARO)
+az aro create --resource-group myResourceGroup \
+  --name llamastack-cluster \
+  --vnet aro-vnet \
+  --master-subnet master-subnet \
+  --worker-subnet worker-subnet
+
+# Google Cloud OpenShift (coming soon)
+----
+
+Self-Managed OpenShift::
++
+[source,bash]
+----
+# Install OpenShift on your infrastructure
+# Follow the installation guide at:
+# https://docs.openshift.com/container-platform/latest/installing/
+----
+====
+
+[#cli-setup]
+=== OpenShift CLI Setup
+
+Install and configure the OpenShift CLI:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Download oc CLI
+curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | tar xz
+sudo mv oc kubectl /usr/local/bin/
+
+# Login to cluster
+oc login https://api.your-cluster.example.com:6443
+
+# Verify connection
+oc whoami
+oc cluster-info
+----
+
+[#setup]
+== OpenShift Setup
+
+[#project-creation]
+=== Project Creation
+
+Create a dedicated project (namespace) for LlamaStack:
+
+[source,bash]
+----
+# Create project
+oc new-project llamastack --display-name="LlamaStack AI Platform" \
+  --description="Enterprise AI platform deployment"
+
+# Set project as current
+oc project llamastack
+
+# Add resource quotas
+oc apply -f - <<EOF
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: llamastack-quota
+  namespace: llamastack
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 40Gi
+    limits.cpu: "40"
+    limits.memory: 80Gi
+    persistentvolumeclaims: "10"
+    secrets: "20"
+    configmaps: "20"
+EOF
+----
+
+[#security-context]
+=== Security Context Constraints
+
+Create appropriate Security Context Constraints:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# scc.yaml
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: llamastack-scc
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegeEscalation: false
+allowPrivilegedContainer: false
+allowedCapabilities: null
+defaultAddCapabilities: null
+fsGroup:
+  type: MustRunAs
+  ranges:
+    - min: 1000
+    - max: 2000
+readOnlyRootFilesystem: false
+requiredDropCapabilities:
+  - KILL
+  - MKNOD
+  - SETUID
+  - SETGID
+runAsUser:
+  type: MustRunAsRange
+  uidRangeMin: 1000
+  uidRangeMax: 2000
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: RunAsAny
+volumes:
+  - configMap
+  - downwardAPI
+  - emptyDir
+  - persistentVolumeClaim
+  - projected
+  - secret
+users:
+  - system:serviceaccount:llamastack:llamastack-sa
+----
+
+Apply the SCC:
+
+[source,bash]
+----
+oc apply -f scc.yaml
+oc adm policy add-scc-to-user llamastack-scc system:serviceaccount:llamastack:llamastack-sa
+----
+
+[#deployment]
+== Enterprise Deployment
+
+[#imagestreams]
+=== ImageStreams
+
+Create ImageStreams for container image management:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# imagestreams.yaml
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: llamastack
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - name: latest
+    from:
+      kind: DockerImage
+      name: llamastack/llamastack:latest
+    importPolicy:
+      scheduled: true
+      insecure: false
+    referencePolicy:
+      type: Source
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: redis
+  namespace: llamastack
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - name: "7-alpine"
+    from:
+      kind: DockerImage
+      name: redis:7-alpine
+    importPolicy:
+      scheduled: true
+----
+
+[#deploymentconfig]
+=== DeploymentConfig
+
+Use OpenShift's DeploymentConfig for enhanced deployment features:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# deploymentconfig.yaml
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: llamastack
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+    app.kubernetes.io/component: api-server
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  selector:
+    app: llamastack
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 300
+      maxUnavailable: 25%
+      maxSurge: 25%
+      pre:
+        failurePolicy: Abort
+        execNewPod:
+          command:
+          - /bin/sh
+          - -c
+          - "echo 'Pre-deployment check'; curl -f http://redis-service:6379 || exit 1"
+          containerName: llamastack
+  template:
+    metadata:
+      labels:
+        app: llamastack
+    spec:
+      serviceAccountName: llamastack-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: llamastack
+        image: llamastack:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 11434
+          name: http
+          protocol: TCP
+        env:
+        - name: LLAMASTACK_PORT
+          value: "11434"
+        - name: LLAMASTACK_HOST
+          value: "0.0.0.0"
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: openai-api-key
+        - name: SEARCH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: search-api-key
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: data-volume
+          mountPath: /app/data
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 11434
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 11434
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: config-volume
+        configMap:
+          name: llamastack-config
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: llamastack-data-pvc
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+      - llamastack
+      from:
+        kind: ImageStreamTag
+        name: llamastack:latest
+        namespace: llamastack
+----
+
+[#routes]
+=== Routes (OpenShift Ingress)
+
+Create Routes for external access:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# route.yaml
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: llamastack-api
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+  annotations:
+    haproxy.router.openshift.io/timeout: "300s"
+    haproxy.router.openshift.io/rate-limit-connections: "true"
+    haproxy.router.openshift.io/rate-limit-connections.concurrent-tcp: "10"
+spec:
+  host: api.llamastack.apps.your-cluster.example.com
+  to:
+    kind: Service
+    name: llamastack-service
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: llamastack-ui
+  namespace: llamastack
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /ui
+spec:
+  host: ui.llamastack.apps.your-cluster.example.com
+  path: /
+  to:
+    kind: Service
+    name: llamastack-service
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+----
+
+[#buildconfig]
+=== BuildConfig for Custom Images
+
+Create custom builds with BuildConfig:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# buildconfig.yaml
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: llamastack-custom
+  namespace: llamastack
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/your-org/llamastack-custom.git
+      ref: main
+    contextDir: "."
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+      env:
+      - name: BUILD_ENV
+        value: "production"
+  output:
+    to:
+      kind: ImageStreamTag
+      name: llamastack:custom
+  triggers:
+  - type: ConfigChange
+  - type: GitHub
+    github:
+      secret: webhook-secret
+  - type: Generic
+    generic:
+      secret: webhook-secret
+  - type: ImageChange
+    imageChange:
+      from:
+        kind: ImageStreamTag
+        name: llamastack:latest
+----
+
+[#monitoring-logging]
+== Monitoring and Logging
+
+[#openshift-monitoring]
+=== OpenShift Monitoring Integration
+
+Enable monitoring for your application:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: llamastack-metrics
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: llamastack
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    scheme: http
+    tlsConfig:
+      insecureSkipVerify: true
+  namespaceSelector:
+    matchNames:
+    - llamastack
+----
+
+[#custom-metrics]
+=== Custom Dashboards
+
+Create Grafana dashboards for LlamaStack:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# grafana-dashboard.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llamastack-dashboard
+  namespace: llamastack
+  labels:
+    grafana_dashboard: "true"
+data:
+  llamastack-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "LlamaStack Metrics",
+        "panels": [
+          {
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(llamastack_requests_total[5m])",
+                "legendFormat": "{{method}} {{status}}"
+              }
+            ]
+          },
+          {
+            "title": "Response Time",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(llamastack_request_duration_seconds_bucket[5m]))",
+                "legendFormat": "95th percentile"
+              }
+            ]
+          }
+        ]
+      }
+    }
+----
+
+[#openshift-logging]
+=== OpenShift Logging
+
+Configure application logging:
+
+[source,yaml]
+----
+# Update deployment with logging configuration
+env:
+- name: LLAMASTACK_LOG_FORMAT
+  value: "json"
+- name: LLAMASTACK_LOG_LEVEL
+  value: "INFO"
+
+# ClusterLogForwarder for custom log forwarding
+apiVersion: logging.coreos.com/v1
+kind: ClusterLogForwarder
+metadata:
+  name: llamastack-logs
+  namespace: openshift-logging
+spec:
+  outputs:
+  - name: llamastack-elasticsearch
+    type: elasticsearch
+    url: https://elasticsearch.logging.example.com:9200
+    secret:
+      name: elasticsearch-secret
+  pipelines:
+  - name: llamastack-pipeline
+    inputRefs:
+    - application
+    filterRefs:
+    - llamastack-filter
+    outputRefs:
+    - llamastack-elasticsearch
+  filters:
+  - name: llamastack-filter
+    type: "json"
+    json:
+      javascript: |
+        const log = record.log;
+        if (log && log.kubernetes && log.kubernetes.namespace_name === 'llamastack') {
+          return record;
+        }
+        return null;
+----
+
+[#security-compliance]
+== Security and Compliance
+
+[#pod-security]
+=== Pod Security Standards
+
+Implement pod security standards:
+
+[source,yaml]
+----
+# Update project with security labels
+oc label namespace llamastack \
+  pod-security.kubernetes.io/enforce=restricted \
+  pod-security.kubernetes.io/audit=restricted \
+  pod-security.kubernetes.io/warn=restricted
+
+# Security context for deployment
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+containers:
+- name: llamastack
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 1000
+----
+
+[#network-policies]
+=== Network Policies
+
+Implement micro-segmentation:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# network-policies.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: llamastack-netpol
+  namespace: llamastack
+spec:
+  podSelector:
+    matchLabels:
+      app: llamastack
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: openshift-ingress
+      podSelector:
+        matchLabels:
+          ingresscontroller.operator.openshift.io/deployment-ingresscontroller: default
+    ports:
+    - protocol: TCP
+      port: 11434
+  - from:
+    - podSelector:
+        matchLabels:
+          app: llamastack
+    ports:
+    - protocol: TCP
+      port: 11434
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+----
+
+[#compliance-scanning]
+=== Compliance Scanning
+
+Enable OpenShift compliance scanning:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# compliance-scan.yaml
+apiVersion: compliance.openshift.io/v1alpha1
+kind: ComplianceScan
+metadata:
+  name: llamastack-compliance
+  namespace: llamastack
+spec:
+  profile: xccdf_org.ssgproject.content_profile_moderate
+  content: ssg-ocp4-ds.xml
+  rule: "xccdf_org.ssgproject.content_rule_.*"
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+  schedule: "0 1 * * 0"  # Weekly on Sunday at 1 AM
+----
+
+[#operators]
+== OpenShift Operators
+
+[#custom-operator]
+=== LlamaStack Operator
+
+Create a custom operator for LlamaStack management:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# llamastack-operator.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: llamastacks.ai.example.com
+spec:
+  group: ai.example.com
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              replicas:
+                type: integer
+                minimum: 1
+                maximum: 10
+              modelProviders:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: ["openai", "anthropic", "ollama"]
+                    config:
+                      type: object
+              resources:
+                type: object
+                properties:
+                  requests:
+                    type: object
+                  limits:
+                    type: object
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Pending", "Running", "Failed"]
+              replicas:
+                type: integer
+  scope: Namespaced
+  names:
+    plural: llamastacks
+    singular: llamastack
+    kind: LlamaStack
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llamastack-operator
+  namespace: llamastack-operator-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: llamastack-operator
+  template:
+    metadata:
+      labels:
+        control-plane: llamastack-operator
+    spec:
+      containers:
+      - name: operator
+        image: llamastack/operator:latest
+        command:
+        - /manager
+        args:
+        - --leader-elect
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+----
+
+[#gitops]
+== GitOps with OpenShift GitOps
+
+[#argocd-setup]
+=== ArgoCD Application
+
+Deploy LlamaStack using GitOps:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# argocd-application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: llamastack
+  namespace: openshift-gitops
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/llamastack-manifests.git
+    targetRevision: main
+    path: manifests/openshift
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: llamastack
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+----
+
+[#pipeline]
+== OpenShift Pipelines (Tekton)
+
+[#tekton-pipeline]
+=== CI/CD Pipeline
+
+Create a complete CI/CD pipeline:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# pipeline.yaml
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: llamastack-pipeline
+  namespace: llamastack
+spec:
+  params:
+  - name: git-url
+    type: string
+    description: Git repository URL
+  - name: git-revision
+    type: string
+    description: Git revision to checkout
+    default: main
+  - name: image-name
+    type: string
+    description: Output image name
+  workspaces:
+  - name: shared-workspace
+  - name: git-credentials
+    optional: true
+  tasks:
+  - name: fetch-source
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    - name: basic-auth
+      workspace: git-credentials
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: revision
+      value: $(params.git-revision)
+    - name: deleteExisting
+      value: "true"
+
+  - name: build-image
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    runAfter:
+    - fetch-source
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: IMAGE
+      value: $(params.image-name)
+    - name: DOCKERFILE
+      value: ./Dockerfile
+    - name: CONTEXT
+      value: .
+
+  - name: deploy-to-dev
+    taskRef:
+      name: openshift-client
+      kind: ClusterTask
+    runAfter:
+    - build-image
+    params:
+    - name: SCRIPT
+      value: |
+        oc patch dc/llamastack -p '{"spec":{"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["llamastack"],"from":{"kind":"ImageStreamTag","name":"$(params.image-name)"}}}]}}'
+        oc rollout latest dc/llamastack
+        oc wait --for=condition=available --timeout=300s dc/llamastack
+
+  - name: run-tests
+    taskRef:
+      name: pytest
+    runAfter:
+    - deploy-to-dev
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+
+  - name: security-scan
+    taskRef:
+      name: trivy-scanner
+    runAfter:
+    - build-image
+    params:
+    - name: IMAGE
+      value: $(params.image-name)
+
+  - name: deploy-to-prod
+    taskRef:
+      name: openshift-client
+      kind: ClusterTask
+    runAfter:
+    - run-tests
+    - security-scan
+    when:
+    - input: $(params.git-revision)
+      operator: in
+      values: ["main", "release"]
+    params:
+    - name: SCRIPT
+      value: |
+        oc project llamastack-prod
+        oc patch dc/llamastack -p '{"spec":{"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["llamastack"],"from":{"kind":"ImageStreamTag","name":"$(params.image-name)"}}}]}}'
+        oc rollout latest dc/llamastack
+        oc wait --for=condition=available --timeout=300s dc/llamastack
+----
+
+[#disaster-recovery]
+== Disaster Recovery
+
+[#etcd-backup]
+=== ETCD Backup
+
+OpenShift provides automated ETCD backups:
+
+[source,bash]
+----
+# Check backup status
+oc get etcdbackup -n openshift-etcd
+
+# Manual backup (if needed)
+oc create -f - <<EOF
+apiVersion: operator.openshift.io/v1alpha1
+kind: EtcdBackup
+metadata:
+  name: backup-$(date +%Y%m%d-%H%M%S)
+  namespace: openshift-etcd
+spec: {}
+EOF
+----
+
+[#application-backup]
+=== Application Backup
+
+Use OADP (OpenShift API for Data Protection):
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# oadp-backup.yaml
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: llamastack-backup
+  namespace: openshift-adp
+spec:
+  hooks: {}
+  includedNamespaces:
+  - llamastack
+  includedResources:
+  - persistentvolumeclaims
+  - persistentvolumes
+  - deploymentconfigs
+  - secrets
+  - configmaps
+  - services
+  - routes
+  - imagestreams
+  storageLocation: default
+  ttl: 720h0m0s
+  volumeSnapshotLocations:
+  - default
+----
+
+[#performance-tuning]
+== Performance Tuning
+
+[#node-tuning]
+=== Node Tuning Operator
+
+Optimize nodes for AI workloads:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# node-tuning.yaml
+apiVersion: tuned.openshift.io/v1
+kind: Tuned
+metadata:
+  name: llamastack-performance
+  namespace: openshift-cluster-node-tuning-operator
+spec:
+  profile:
+  - name: llamastack-performance
+    data: |
+      [main]
+      summary=Optimize for LlamaStack AI workloads
+
+      [cpu]
+      governor=performance
+      energy_perf_bias=performance
+
+      [vm]
+      transparent_hugepages=always
+      swappiness=1
+
+      [sysctl]
+      vm.max_map_count=1048575
+      net.core.rmem_max=134217728
+      net.core.wmem_max=134217728
+
+  recommend:
+  - match:
+    - label: node-role.kubernetes.io/worker
+    - label: workload.openshift.io/llamastack
+    priority: 20
+    profile: llamastack-performance
+----
+
+[#cluster-autoscaling]
+=== Cluster Autoscaling
+
+Configure cluster autoscaling:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# cluster-autoscaler.yaml
+apiVersion: autoscaling.openshift.io/v1
+kind: ClusterAutoscaler
+metadata:
+  name: default
+spec:
+  podPriorityThreshold: -10
+  resourceLimits:
+    maxNodesTotal: 20
+    cores:
+      min: 8
+      max: 128
+    memory:
+      min: 4
+      max: 256
+  scaleDown:
+    enabled: true
+    delayAfterAdd: 10m
+    delayAfterDelete: 10s
+    delayAfterFailure: 30s
+    unneededTime: 60s
+----
+
+[#troubleshooting]
+== Troubleshooting
+
+[#openshift-specific]
+=== OpenShift-Specific Troubleshooting
+
+**Route Issues**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check route status
+oc get routes
+oc describe route llamastack-api
+
+# Test route connectivity
+curl -I https://$(oc get route llamastack-api -o jsonpath='{.spec.host}')
+
+# Check router logs
+oc logs -n openshift-ingress-operator deployment/ingress-operator
+----
+
+**Build Issues**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check build status
+oc get builds
+oc describe build llamastack-custom-1
+
+# View build logs
+oc logs build/llamastack-custom-1
+
+# Debug build
+oc debug build/llamastack-custom-1
+----
+
+**Image Pull Issues**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check image stream
+oc get is
+oc describe is llamastack
+
+# Import image manually
+oc import-image llamastack:latest --confirm
+
+# Check registry connectivity
+oc debug node/worker-node -- chroot /host curl -k https://image-registry.openshift-image-registry.svc:5000/v2/
+----
+
+[#upgrade-migration]
+== Upgrade and Migration
+
+[#cluster-upgrade]
+=== Cluster Upgrade
+
+Prepare for OpenShift cluster upgrades:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check upgrade path
+oc adm upgrade
+
+# Plan upgrade
+oc patch clusterversion version --type merge -p '{"spec":{"desiredUpdate":{"version":"4.14.0"}}}'
+
+# Monitor upgrade
+oc get clusterversion
+oc get co  # cluster operators
+oc get nodes
+----
+
+[#application-migration]
+=== Application Migration
+
+Migrate between OpenShift clusters:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Export resources
+oc get all,pvc,secrets,configmaps -o yaml -n llamastack > llamastack-export.yaml
+
+# Create migration script
+#!/bin/bash
+# Remove cluster-specific fields
+yq eval 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.generation,.status)' llamastack-export.yaml > llamastack-clean.yaml
+
+# Apply to new cluster
+oc apply -f llamastack-clean.yaml -n llamastack
+----
+
+[#cleanup]
+== Cleanup
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Delete project and all resources
+oc delete project llamastack
+
+# Clean up cluster-scoped resources
+oc delete scc llamastack-scc
+oc delete tuned llamastack-performance -n openshift-cluster-node-tuning-operator
+
+# Verify cleanup
+oc get projects | grep llamastack
+----
+
+[#conclusion]
+== Conclusion
+
+You've successfully learned how to deploy LlamaStack on OpenShift with enterprise-grade features including:
+
+* **Security**: SCC, network policies, compliance scanning
+* **Monitoring**: Integrated with OpenShift monitoring stack
+* **GitOps**: Automated deployment with ArgoCD
+* **CI/CD**: Complete pipelines with OpenShift Pipelines
+* **Backup/Recovery**: OADP integration for data protection
+* **Performance**: Node tuning and autoscaling
+* **Compliance**: Built-in security and compliance features
+
+This completes the comprehensive LlamaStack deployment tutorial covering local development through enterprise production deployment.

@@ -1,0 +1,465 @@
+= Podman Desktop
+include::_attributes.adoc[]
+
+Learn how to use Podman Desktop, a graphical interface for managing containers, pods, and images with Podman.
+
+[#setup]
+== Podman Desktop Setup
+
+[#installation]
+=== Installing Podman Desktop
+
+Podman Desktop provides a user-friendly GUI for container management, similar to Docker Desktop.
+
+[tabs]
+====
+Linux::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Download from GitHub releases
+wget https://github.com/containers/podman-desktop/releases/latest/download/podman-desktop-*.AppImage
+
+# Make executable
+chmod +x podman-desktop-*.AppImage
+
+# Run
+./podman-desktop-*.AppImage
+
+# Or install via package manager
+# Flatpak
+flatpak install flathub io.podman_desktop.PodmanDesktop
+
+# Snap
+sudo snap install podman-desktop
+----
+
+macOS::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Download DMG from GitHub releases
+# https://github.com/containers/podman-desktop/releases
+
+# Or install via Homebrew
+brew install --cask podman-desktop
+
+# Launch from Applications or command line
+open -a "Podman Desktop"
+----
+
+Windows::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Download installer from GitHub releases
+# https://github.com/containers/podman-desktop/releases
+
+# Or install via package managers
+# Chocolatey
+choco install podman-desktop
+
+# Winget
+winget install RedHat.Podman-Desktop
+----
+====
+
+[#initial-setup]
+=== Initial Setup
+
+When you first launch Podman Desktop:
+
+1. **Check Prerequisites**: Podman Desktop will verify that Podman is installed
+2. **Initialize Podman Machine** (macOS/Windows): Set up the Podman virtual machine
+3. **Configure Settings**: Adjust preferences and resource allocation
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Verify Podman is available
+podman --version
+
+# On macOS/Windows, initialize machine if needed
+podman machine init
+podman machine start
+----
+
+[#gui]
+== GUI Management
+
+[#dashboard]
+=== Dashboard Overview
+
+The Podman Desktop dashboard provides:
+
+* **System Overview**: Resource usage, running containers, and system status
+* **Quick Actions**: Start/stop services, create containers, pull images
+* **Recent Activity**: Latest container operations and logs
+* **System Health**: Podman engine status and diagnostics
+
+[#container-management]
+=== Container Management
+
+**Creating Containers**
+
+1. Navigate to **Images** → Select an image → **Run**
+2. Configure container settings:
+   - **Name**: `llamastack`
+   - **Port Mapping**: `11434:11434`
+   - **Environment Variables**: Add `LLAMASTACK_PORT=11434`
+   - **Volume Mounts**: Mount config and data directories
+
+**Managing Running Containers**
+
+From the **Containers** view:
+- **Start/Stop**: Use action buttons
+- **Logs**: View real-time container logs
+- **Terminal**: Access container shell
+- **Stats**: Monitor resource usage
+- **Inspect**: View detailed container information
+
+[#image-management]
+=== Image Management
+
+**Pulling Images**
+
+1. Go to **Images** → **Pull Image**
+2. Enter image name: `llamastack/llamastack:latest`
+3. Select tag and pull
+
+**Building Images**
+
+1. Navigate to **Images** → **Build**
+2. Select Dockerfile location
+3. Configure build context and tags
+4. Monitor build progress
+
+**Image Operations**
+
+- **Push**: Push images to registries
+- **Tag**: Create image tags
+- **Remove**: Delete unused images
+- **Inspect**: View image details and layers
+
+[#pod-management]
+=== Pod Management
+
+Podman Desktop provides excellent pod management capabilities:
+
+**Creating Pods**
+
+1. Go to **Pods** → **Create Pod**
+2. Configure pod settings:
+   - **Name**: `llamastack-pod`
+   - **Port Mapping**: `11434:11434, 6379:6379`
+   - **Labels**: Add descriptive labels
+
+**Adding Containers to Pods**
+
+1. Select existing pod or create new
+2. **Add Container** → Choose image
+3. Configure container within pod context
+
+**Pod Operations**
+
+- **Start/Stop Pod**: Control all containers in pod
+- **Generate Kubernetes YAML**: Export pod configuration
+- **Logs**: View aggregated pod logs
+- **Delete**: Remove pod and all containers
+
+[#volume-management]
+=== Volume Management
+
+**Creating Volumes**
+
+1. Navigate to **Volumes** → **Create Volume**
+2. Configure volume:
+   - **Name**: `llamastack-data`
+   - **Driver**: local
+   - **Mount Point**: Auto-generated
+
+**Volume Operations**
+
+- **Inspect**: View volume details and usage
+- **Backup**: Export volume data
+- **Prune**: Remove unused volumes
+- **Mount**: Attach to containers
+
+[#networking]
+== Networking
+
+[#network-configuration]
+=== Network Configuration
+
+**Creating Networks**
+
+1. Go to **Networks** → **Create Network**
+2. Configure network settings:
+   - **Name**: `llamastack-net`
+   - **Driver**: bridge
+   - **Subnet**: Custom or auto-assigned
+   - **Gateway**: Auto-configured
+
+**Network Operations**
+
+- **Inspect**: View network topology
+- **Connect**: Attach containers to networks
+- **Disconnect**: Remove containers from networks
+- **Remove**: Delete unused networks
+
+[#port-forwarding]
+=== Port Forwarding
+
+Configure port access through the GUI:
+
+1. **Container Settings** → **Ports**
+2. Add port mappings:
+   - **Host Port**: `11434`
+   - **Container Port**: `11434`
+   - **Protocol**: TCP
+3. Apply changes and restart container
+
+[#compose-integration]
+== Compose Integration
+
+[#compose-files]
+=== Working with Compose Files
+
+**Loading Compose Projects**
+
+1. **Compose** → **Create from existing Compose file**
+2. Select your `docker-compose.yml` file
+3. Review and modify service configurations
+4. **Create and Start** services
+
+**Compose Project Management**
+
+- **Start/Stop**: Control entire stack
+- **Logs**: View service logs
+- **Scale**: Adjust service replicas
+- **Update**: Modify service configurations
+
+[#compose-yaml-editor]
+=== Built-in YAML Editor
+
+Podman Desktop includes a YAML editor for compose files:
+
+- **Syntax Highlighting**: AsciiDoc and YAML syntax support
+- **Validation**: Real-time compose file validation
+- **Auto-completion**: Service and configuration suggestions
+- **Live Preview**: See changes before applying
+
+[#monitoring]
+== Monitoring and Debugging
+
+[#resource-monitoring]
+=== Resource Monitoring
+
+**System Dashboard**
+
+- **CPU Usage**: Real-time CPU utilization
+- **Memory Usage**: RAM consumption by containers
+- **Disk Usage**: Storage utilization
+- **Network I/O**: Network traffic statistics
+
+**Container-specific Monitoring**
+
+- **Resource Limits**: Set and monitor limits
+- **Health Checks**: Configure and view health status
+- **Performance Metrics**: CPU, memory, network per container
+
+[#log-management]
+=== Log Management
+
+**Centralized Logging**
+
+- **Real-time Logs**: Stream container output
+- **Log Filtering**: Search and filter log entries
+- **Log Export**: Save logs to files
+- **Log Rotation**: Configure log retention
+
+**Debugging Tools**
+
+- **Terminal Access**: Shell into containers
+- **File Browser**: Explore container filesystem
+- **Process List**: View running processes
+- **Network Inspector**: Debug network connectivity
+
+[#extensions]
+== Extensions and Integrations
+
+[#kubernetes-integration]
+=== Kubernetes Integration
+
+**Kind/Minikube Support**
+
+1. **Settings** → **Resources** → **Kubernetes**
+2. Enable Kubernetes provider
+3. Create local cluster or connect existing
+
+**Pod Generation**
+
+- **Generate Kubernetes YAML**: Convert pods to K8s manifests
+- **Deploy to Cluster**: Direct deployment from Desktop
+- **Cluster Management**: Monitor K8s resources
+
+[#registry-integration]
+=== Registry Integration
+
+**Registry Configuration**
+
+1. **Settings** → **Registries**
+2. Add registry credentials:
+   - **Registry URL**: Custom or public registries
+   - **Username/Password**: Authentication
+   - **Secure Connection**: TLS settings
+
+**Registry Operations**
+
+- **Browse Images**: Explore registry catalogs
+- **Pull Images**: Download from registries
+- **Push Images**: Upload to registries
+- **Manage Tags**: Tag management interface
+
+[#development-workflow]
+== Development Workflow
+
+[#dev-containers]
+=== Development Containers
+
+**Setting up Dev Environment**
+
+1. Create development container with mounted source code:
+   - **Image**: `llamastack/llamastack:dev`
+   - **Volumes**: Mount `./src:/app/src`
+   - **Environment**: Set development variables
+
+2. Enable development features:
+   - **Hot Reload**: Automatic code reloading
+   - **Debug Mode**: Enhanced logging
+   - **Port Forwarding**: Direct access to services
+
+[#testing-workflow]
+=== Testing Workflow
+
+**Container Testing**
+
+- **Quick Tests**: Run containers with test configurations
+- **Integration Tests**: Multi-container test scenarios
+- **Load Testing**: Monitor resource usage under load
+
+**Debugging Workflow**
+
+1. **Inspect Containers**: View configuration and state
+2. **Access Logs**: Real-time debugging information
+3. **Shell Access**: Direct container troubleshooting
+4. **Network Testing**: Verify connectivity between services
+
+[#automation]
+== Automation
+
+[#scripting-integration]
+=== Scripting Integration
+
+**Command Palette**
+
+Access common operations via command palette (Ctrl/Cmd + Shift + P):
+- Container operations
+- Image management
+- Network configuration
+- Volume operations
+
+**Custom Scripts**
+
+Integrate with external scripts:
+- **Pre/Post Hooks**: Run scripts before/after operations
+- **Custom Actions**: Add menu items for common tasks
+- **Automation**: Schedule regular maintenance tasks
+
+[#ci-cd-integration]
+=== CI/CD Integration
+
+**Export Configurations**
+
+- **Kubernetes YAML**: Export for K8s deployments
+- **Docker Compose**: Generate compose files
+- **Systemd Units**: Create system service files
+
+**Build Pipelines**
+
+- **Image Building**: Automated image builds
+- **Testing**: Container-based test execution
+- **Deployment**: Direct deployment to clusters
+
+[#troubleshooting]
+== Troubleshooting
+
+[#common-issues]
+=== Common Desktop Issues
+
+**Application Won't Start**
+- Check Podman installation and version
+- Verify system permissions
+- Review application logs in system console
+
+**Connection Issues**
+- Verify Podman machine status (macOS/Windows)
+- Check firewall settings
+- Validate network configuration
+
+**Performance Issues**
+- Adjust resource allocation in settings
+- Monitor system resource usage
+- Optimize container configurations
+
+[#diagnostic-tools]
+=== Built-in Diagnostics
+
+**System Information**
+- **About** → **System Info**: View configuration
+- **Logs** → **Application Logs**: Desktop application logs
+- **Troubleshooting** → **System Check**: Automated diagnostics
+
+**Reset Options**
+- **Reset Settings**: Restore default configuration
+- **Clear Cache**: Remove cached data
+- **Reinstall Podman**: Fresh Podman installation
+
+[#backup-restore]
+== Backup and Restore
+
+[#configuration-backup]
+=== Configuration Backup
+
+**Settings Export**
+1. **Settings** → **General** → **Export Settings**
+2. Save configuration file
+3. Import on new installation
+
+**Container Configurations**
+- Export container configurations as JSON
+- Save compose files and pod definitions
+- Backup volume mount configurations
+
+[#data-backup]
+=== Data Backup
+
+**Volume Backup through GUI**
+1. **Volumes** → Select volume → **Actions** → **Backup**
+2. Choose backup location
+3. Monitor backup progress
+
+**Container Export**
+1. **Containers** → Select container → **Actions** → **Export**
+2. Save as tar archive
+3. Import on target system
+
+[#next-steps]
+== Next Steps
+
+Now that you're comfortable with local development using Podman Desktop, let's move to production deployments on Kubernetes:
+
+xref:05-kubernetes.adoc[Continue to Kubernetes Deployment →]

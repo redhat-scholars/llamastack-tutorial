@@ -1,0 +1,409 @@
+= Local Development with Docker
+include::_attributes.adoc[]
+
+Learn how to set up and run LlamaStack locally using Docker containers for development and testing.
+
+[#setup]
+== Docker Setup
+
+[#install-docker]
+=== Installing Docker
+
+First, ensure Docker is installed on your system:
+
+[tabs]
+====
+Linux::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Ubuntu/Debian
+sudo apt update
+sudo apt install docker.io docker-compose
+
+# RHEL/CentOS/Fedora
+sudo dnf install docker docker-compose
+
+# Start and enable Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add your user to docker group (logout/login required)
+sudo usermod -aG docker $USER
+----
+
+macOS::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Install Docker Desktop for Mac
+# Download from: https://www.docker.com/products/docker-desktop
+
+# Or using Homebrew
+brew install --cask docker
+----
+
+Windows::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Install Docker Desktop for Windows
+# Download from: https://www.docker.com/products/docker-desktop
+
+# Or using Chocolatey
+choco install docker-desktop
+----
+====
+
+[#verify-installation]
+=== Verify Installation
+
+Verify Docker is working correctly:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+docker --version
+docker-compose --version
+docker run hello-world
+----
+
+[#running]
+== Running LlamaStack
+
+[#quick-start]
+=== Quick Start with Docker Compose
+
+Create a `docker-compose.yml` file for a complete LlamaStack setup:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+version: '3.8'
+
+services:
+  llamastack:
+    image: llamastack/llamastack:latest
+    ports:
+      - "11434:11434"
+    environment:
+      - LLAMASTACK_PORT=11434
+      - LLAMASTACK_HOST=0.0.0.0
+    volumes:
+      - llamastack_data:/app/data
+      - ./config:/app/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  llamastack_data:
+  redis_data:
+----
+
+[#start-services]
+=== Start Services
+
+Start the LlamaStack services:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Start in detached mode
+docker-compose up -d
+
+# View logs
+docker-compose logs -f llamastack
+
+# Check status
+docker-compose ps
+----
+
+[#configuration]
+== Configuration
+
+[#config-files]
+=== Configuration Files
+
+Create a configuration directory with your LlamaStack settings:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+mkdir -p config
+----
+
+Create `config/llamastack.yaml`:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+server:
+  host: 0.0.0.0
+  port: 11434
+
+models:
+  providers:
+    - provider_type: ollama
+      config:
+        url: http://localhost:11434
+    - provider_type: openai
+      config:
+        api_key: ${OPENAI_API_KEY}
+
+tools:
+  providers:
+    - provider_type: filesystem
+      config:
+        base_path: /app/data
+    - provider_type: web_search
+      config:
+        api_key: ${SEARCH_API_KEY}
+
+safety:
+  providers:
+    - provider_type: llama_guard
+      config:
+        model_id: meta-llama/LlamaGuard-7b
+
+memory:
+  provider_type: redis
+  config:
+    host: redis
+    port: 6379
+----
+
+[#environment-variables]
+=== Environment Variables
+
+Create a `.env` file for sensitive configuration:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# API Keys
+OPENAI_API_KEY=your_openai_key_here
+SEARCH_API_KEY=your_search_key_here
+
+# Model Configuration
+DEFAULT_MODEL=llama2
+MAX_TOKENS=2048
+
+# Security
+LLAMASTACK_API_KEY=your_api_key_here
+----
+
+Update your `docker-compose.yml` to use the environment file:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+services:
+  llamastack:
+    # ... other configuration
+    env_file:
+      - .env
+    environment:
+      - LLAMASTACK_PORT=11434
+      - LLAMASTACK_HOST=0.0.0.0
+----
+
+[#testing]
+== Testing Your Setup
+
+[#health-check]
+=== Health Check
+
+Verify LlamaStack is running:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+curl http://localhost:11434/health
+----
+
+Expected response:
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+{
+  "status": "healthy",
+  "version": "0.1.0",
+  "timestamp": "2023-12-01T10:00:00Z"
+}
+----
+
+[#api-testing]
+=== API Testing
+
+Test the chat completion endpoint:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+curl -X POST http://localhost:11434/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your_api_key_here" \
+  -d '{
+    "model": "llama2",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello, how are you?"
+      }
+    ],
+    "max_tokens": 100
+  }'
+----
+
+[#development-workflow]
+== Development Workflow
+
+[#hot-reload]
+=== Hot Reload for Development
+
+For development with code changes, mount your source code:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+services:
+  llamastack:
+    image: llamastack/llamastack:dev
+    volumes:
+      - ./src:/app/src
+      - llamastack_data:/app/data
+    environment:
+      - PYTHONPATH=/app
+      - LLAMASTACK_ENV=development
+    command: ["python", "-m", "llamastack.server", "--reload"]
+----
+
+[#debugging]
+=== Debugging
+
+Enable debug logging:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+services:
+  llamastack:
+    # ... other configuration
+    environment:
+      - LLAMASTACK_LOG_LEVEL=DEBUG
+      - PYTHONUNBUFFERED=1
+----
+
+Access container for debugging:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+docker-compose exec llamastack bash
+----
+
+[#persistence]
+== Data Persistence
+
+[#volume-management]
+=== Volume Management
+
+List and inspect volumes:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# List volumes
+docker volume ls
+
+# Inspect volume
+docker volume inspect llamastack_llamastack_data
+
+# Backup volume
+docker run --rm -v llamastack_llamastack_data:/data -v $(pwd):/backup alpine tar czf /backup/llamastack-backup.tar.gz -C /data .
+
+# Restore volume
+docker run --rm -v llamastack_llamastack_data:/data -v $(pwd):/backup alpine tar xzf /backup/llamastack-backup.tar.gz -C /data
+----
+
+[#cleanup]
+== Cleanup
+
+[#stop-services]
+=== Stop Services
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Stop services
+docker-compose down
+
+# Stop and remove volumes
+docker-compose down -v
+
+# Remove images
+docker-compose down --rmi all
+----
+
+[#troubleshooting]
+== Troubleshooting
+
+[#common-issues]
+=== Common Issues
+
+**Port Already in Use**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check what's using the port
+sudo netstat -tulpn | grep :11434
+
+# Change port in docker-compose.yml
+ports:
+  - "11435:11434"
+----
+
+**Permission Denied**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Fix volume permissions
+sudo chown -R $USER:$USER ./config
+sudo chmod -R 755 ./config
+----
+
+**Container Won't Start**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check logs
+docker-compose logs llamastack
+
+# Check container status
+docker-compose ps
+
+# Restart specific service
+docker-compose restart llamastack
+----
+
+[#next-steps]
+== Next Steps
+
+Now that you have LlamaStack running with Docker, let's explore Podman as an alternative:
+
+xref:03-local-podman.adoc[Continue to Podman Setup →]

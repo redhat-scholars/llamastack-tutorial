@@ -1,20 +1,41 @@
-= Welcome to Template Tutorial
+= Welcome to LlamaStack Tutorial
 :page-layout: home
 :!sectids:
 
 [.text-center.strong]
-== Publish Services to Kubernetes
+== LlamaStack Development and Deployment Guide
 
-A Kubernetes tutorial to show how you can deploy a Java service to a Kubernetes cluster as it was a child game.
+Learn how to develop and deploy LlamaStack applications locally and in production environments using Docker, Podman, Kubernetes, and OpenShift.
 
 [.tiles.browse]
 == Browse modules
 
 [.tile]
-.xref:01-setup.adoc[Get Started]
-* xref:01-setup.adoc#minikube[Minikube]
+.xref:01-introduction.adoc[Introduction]
+* xref:01-introduction.adoc#overview[LlamaStack Overview]
+* xref:01-introduction.adoc#prerequisites[Prerequisites]
 
 [.tile]
-.xref:02-deploy.adoc[Deploying]
-* xref:02-deploy.adoc#package[Package the Application]
-* xref:02-deploy.adoc#deploy[Deploy the Application]
+.xref:02-local-docker.adoc[Local Development with Docker]
+* xref:02-local-docker.adoc#setup[Docker Setup]
+* xref:02-local-docker.adoc#running[Running LlamaStack]
+
+[.tile]
+.xref:03-local-podman.adoc[Local Development with Podman]
+* xref:03-local-podman.adoc#setup[Podman Setup]
+* xref:03-local-podman.adoc#running[Running with Podman]
+
+[.tile]
+.xref:04-podman-desktop.adoc[Podman Desktop]
+* xref:04-podman-desktop.adoc#setup[Desktop Setup]
+* xref:04-podman-desktop.adoc#gui[GUI Management]
+
+[.tile]
+.xref:05-kubernetes.adoc[Kubernetes Deployment]
+* xref:05-kubernetes.adoc#manifests[Kubernetes Manifests]
+* xref:05-kubernetes.adoc#deployment[Production Deployment]
+
+[.tile]
+.xref:06-openshift.adoc[OpenShift Deployment]
+* xref:06-openshift.adoc#setup[OpenShift Setup]
+* xref:06-openshift.adoc#deployment[Enterprise Deployment]

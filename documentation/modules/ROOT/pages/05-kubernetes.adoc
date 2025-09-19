@@ -1,0 +1,919 @@
+= Kubernetes Deployment
+include::_attributes.adoc[]
+
+Learn how to deploy LlamaStack on Kubernetes for production workloads with scalability, reliability, and observability.
+
+[#prerequisites]
+== Prerequisites
+
+[#cluster-setup]
+=== Kubernetes Cluster Setup
+
+Ensure you have access to a Kubernetes cluster:
+
+[tabs]
+====
+Local Development::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Minikube
+minikube start --memory=8192 --cpus=4
+
+# Kind
+kind create cluster --config=kind-config.yaml
+
+# Docker Desktop
+# Enable Kubernetes in Docker Desktop settings
+----
+
+Cloud Providers::
++
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Google Cloud (GKE)
+gcloud container clusters create llamastack-cluster \
+  --num-nodes=3 \
+  --machine-type=e2-standard-4
+
+# AWS (EKS)
+eksctl create cluster --name llamastack-cluster \
+  --region us-west-2 \
+  --nodes 3 \
+  --node-type m5.xlarge
+
+# Azure (AKS)
+az aks create --resource-group myResourceGroup \
+  --name llamastack-cluster \
+  --node-count 3 \
+  --node-vm-size Standard_D4s_v3
+----
+====
+
+[#tools-installation]
+=== Required Tools
+
+Install necessary command-line tools:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+# Helm (optional)
+curl https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz | tar xz
+sudo mv linux-amd64/helm /usr/local/bin/
+
+# Verify installation
+kubectl version --client
+helm version
+----
+
+[#manifests]
+== Kubernetes Manifests
+
+[#namespace]
+=== Namespace
+
+Create a dedicated namespace for LlamaStack:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+    app.kubernetes.io/component: ai-platform
+----
+
+[#configmap]
+=== ConfigMap
+
+Store configuration in a ConfigMap:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llamastack-config
+  namespace: llamastack
+data:
+  llamastack.yaml: |
+    server:
+      host: 0.0.0.0
+      port: 11434
+
+    models:
+      providers:
+        - provider_type: ollama
+          config:
+            url: http://localhost:11434
+        - provider_type: openai
+          config:
+            api_key: ${OPENAI_API_KEY}
+
+    tools:
+      providers:
+        - provider_type: filesystem
+          config:
+            base_path: /app/data
+        - provider_type: web_search
+          config:
+            api_key: ${SEARCH_API_KEY}
+
+    safety:
+      providers:
+        - provider_type: llama_guard
+          config:
+            model_id: meta-llama/LlamaGuard-7b
+
+    memory:
+      provider_type: redis
+      config:
+        host: redis-service
+        port: 6379
+----
+
+[#secret]
+=== Secret
+
+Store sensitive information in Secrets:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: llamastack-secrets
+  namespace: llamastack
+type: Opaque
+data:
+  # Base64 encoded values
+  openai-api-key: <base64-encoded-openai-key>
+  search-api-key: <base64-encoded-search-key>
+  llamastack-api-key: <base64-encoded-api-key>
+----
+
+Create the secret using kubectl:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Create secret from command line
+kubectl create secret generic llamastack-secrets \
+  --namespace=llamastack \
+  --from-literal=openai-api-key=your_openai_key \
+  --from-literal=search-api-key=your_search_key \
+  --from-literal=llamastack-api-key=your_api_key
+----
+
+[#redis-deployment]
+=== Redis Deployment
+
+Deploy Redis for LlamaStack's memory store:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# redis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: llamastack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: llamastack
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: llamastack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+----
+
+[#llamastack-deployment]
+=== LlamaStack Deployment
+
+Deploy the main LlamaStack application:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# llamastack-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llamastack
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+    app.kubernetes.io/component: api-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: llamastack
+  template:
+    metadata:
+      labels:
+        app: llamastack
+    spec:
+      containers:
+      - name: llamastack
+        image: llamastack/llamastack:latest
+        ports:
+        - containerPort: 11434
+          name: http
+        env:
+        - name: LLAMASTACK_PORT
+          value: "11434"
+        - name: LLAMASTACK_HOST
+          value: "0.0.0.0"
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: openai-api-key
+        - name: SEARCH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: search-api-key
+        - name: LLAMASTACK_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llamastack-secrets
+              key: llamastack-api-key
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: data-volume
+          mountPath: /app/data
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 11434
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 11434
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: config-volume
+        configMap:
+          name: llamastack-config
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: llamastack-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: llamastack-data-pvc
+  namespace: llamastack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+----
+
+[#service]
+=== Service
+
+Expose LlamaStack within the cluster:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: llamastack-service
+  namespace: llamastack
+  labels:
+    app.kubernetes.io/name: llamastack
+    app.kubernetes.io/component: api-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 11434
+    protocol: TCP
+    name: http
+  selector:
+    app: llamastack
+----
+
+[#ingress]
+=== Ingress
+
+Expose LlamaStack externally using Ingress:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: llamastack-ingress
+  namespace: llamastack
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.llamastack.example.com
+    secretName: llamastack-tls
+  rules:
+  - host: api.llamastack.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: llamastack-service
+            port:
+              number: 80
+----
+
+[#deployment]
+== Production Deployment
+
+[#deploy-steps]
+=== Deployment Steps
+
+Deploy all components in order:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Create namespace
+kubectl apply -f namespace.yaml
+
+# Deploy secrets and config
+kubectl apply -f secret.yaml
+kubectl apply -f configmap.yaml
+
+# Deploy Redis
+kubectl apply -f redis-deployment.yaml
+
+# Wait for Redis to be ready
+kubectl wait --for=condition=ready pod -l app=redis -n llamastack --timeout=300s
+
+# Deploy LlamaStack
+kubectl apply -f llamastack-deployment.yaml
+
+# Deploy service and ingress
+kubectl apply -f service.yaml
+kubectl apply -f ingress.yaml
+
+# Verify deployment
+kubectl get all -n llamastack
+----
+
+[#verify-deployment]
+=== Verify Deployment
+
+Check that all components are running:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check pods status
+kubectl get pods -n llamastack
+
+# Check services
+kubectl get svc -n llamastack
+
+# Check ingress
+kubectl get ingress -n llamastack
+
+# View logs
+kubectl logs -f deployment/llamastack -n llamastack
+
+# Check health endpoint
+kubectl port-forward svc/llamastack-service 8080:80 -n llamastack
+curl http://localhost:8080/health
+----
+
+[#scaling]
+== Scaling and Performance
+
+[#horizontal-scaling]
+=== Horizontal Pod Autoscaler
+
+Configure automatic scaling based on resource usage:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: llamastack-hpa
+  namespace: llamastack
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: llamastack
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+----
+
+[#resource-optimization]
+=== Resource Optimization
+
+Optimize resource allocation:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# Update deployment with optimized resources
+spec:
+  template:
+    spec:
+      containers:
+      - name: llamastack
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+            ephemeral-storage: "5Gi"
+        # Add resource quotas at namespace level
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: llamastack-quota
+  namespace: llamastack
+spec:
+  hard:
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    limits.cpu: "20"
+    limits.memory: 40Gi
+    persistentvolumeclaims: "10"
+----
+
+[#monitoring]
+== Monitoring and Observability
+
+[#prometheus-monitoring]
+=== Prometheus Monitoring
+
+Add monitoring annotations and ServiceMonitor:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# Update deployment with monitoring annotations
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "11434"
+    prometheus.io/path: "/metrics"
+
+# ServiceMonitor for Prometheus Operator
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: llamastack-metrics
+  namespace: llamastack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: llamastack
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+----
+
+[#logging]
+=== Centralized Logging
+
+Configure structured logging:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# Add logging configuration to deployment
+env:
+- name: LLAMASTACK_LOG_FORMAT
+  value: "json"
+- name: LLAMASTACK_LOG_LEVEL
+  value: "INFO"
+
+# Fluentd/Fluent Bit annotation for log collection
+metadata:
+  annotations:
+    fluentbit.io/parser: "json"
+----
+
+[#security]
+== Security
+
+[#rbac]
+=== Role-Based Access Control
+
+Create RBAC resources:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: llamastack-sa
+  namespace: llamastack
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: llamastack-role
+  namespace: llamastack
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: llamastack-binding
+  namespace: llamastack
+subjects:
+- kind: ServiceAccount
+  name: llamastack-sa
+  namespace: llamastack
+roleRef:
+  kind: Role
+  name: llamastack-role
+  apiGroup: rbac.authorization.k8s.io
+----
+
+[#network-policies]
+=== Network Policies
+
+Implement network segmentation:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: llamastack-network-policy
+  namespace: llamastack
+spec:
+  podSelector:
+    matchLabels:
+      app: llamastack
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - podSelector:
+        matchLabels:
+          app: llamastack
+    ports:
+    - protocol: TCP
+      port: 11434
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443  # HTTPS for external API calls
+    - protocol: TCP
+      port: 53   # DNS
+    - protocol: UDP
+      port: 53   # DNS
+----
+
+[#backup-disaster-recovery]
+== Backup and Disaster Recovery
+
+[#backup-strategy]
+=== Backup Strategy
+
+Implement automated backups:
+
+[.console-input]
+[source,yaml,subs="+macros,+attributes"]
+----
+# backup-cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: llamastack-backup
+  namespace: llamastack
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: postgres:13-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # Backup persistent volumes
+              tar czf /backup/llamastack-data-$(date +%Y%m%d).tar.gz -C /data .
+              tar czf /backup/redis-data-$(date +%Y%m%d).tar.gz -C /redis-data .
+
+              # Upload to cloud storage (example with AWS S3)
+              aws s3 cp /backup/ s3://my-backup-bucket/llamastack/ --recursive
+
+              # Cleanup old backups (keep 30 days)
+              find /backup -name "*.tar.gz" -mtime +30 -delete
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+            - name: llamastack-data
+              mountPath: /data
+              readOnly: true
+            - name: redis-data
+              mountPath: /redis-data
+              readOnly: true
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: backup-pvc
+          - name: llamastack-data
+            persistentVolumeClaim:
+              claimName: llamastack-data-pvc
+          - name: redis-data
+            persistentVolumeClaim:
+              claimName: redis-pvc
+          restartPolicy: OnFailure
+----
+
+[#disaster-recovery]
+=== Disaster Recovery
+
+Plan for disaster recovery scenarios:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Backup current state
+kubectl get all -n llamastack -o yaml > llamastack-backup.yaml
+
+# Backup PVCs
+kubectl get pvc -n llamastack -o yaml > pvc-backup.yaml
+
+# Test restore procedure
+kubectl delete namespace llamastack
+kubectl apply -f llamastack-backup.yaml
+
+# Verify restoration
+kubectl get all -n llamastack
+----
+
+[#maintenance]
+== Maintenance
+
+[#rolling-updates]
+=== Rolling Updates
+
+Perform zero-downtime updates:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Update image
+kubectl set image deployment/llamastack llamastack=llamastack/llamastack:v2.0.0 -n llamastack
+
+# Monitor rollout
+kubectl rollout status deployment/llamastack -n llamastack
+
+# Rollback if needed
+kubectl rollout undo deployment/llamastack -n llamastack
+
+# Check rollout history
+kubectl rollout history deployment/llamastack -n llamastack
+----
+
+[#cluster-maintenance]
+=== Cluster Maintenance
+
+Prepare for cluster maintenance:
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Drain node safely
+kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data
+
+# Cordon node to prevent scheduling
+kubectl cordon <node-name>
+
+# Uncordon after maintenance
+kubectl uncordon <node-name>
+----
+
+[#troubleshooting]
+== Troubleshooting
+
+[#common-issues]
+=== Common Issues
+
+**Pod Startup Issues**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check pod events
+kubectl describe pod <pod-name> -n llamastack
+
+# Check logs
+kubectl logs <pod-name> -n llamastack --previous
+
+# Debug with temporary pod
+kubectl run debug --image=busybox -it --rm --restart=Never -- /bin/sh
+----
+
+**Networking Issues**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Test service connectivity
+kubectl run test-pod --image=curlimages/curl -it --rm --restart=Never -- \
+  curl http://llamastack-service.llamastack.svc.cluster.local/health
+
+# Check DNS resolution
+nslookup llamastack-service.llamastack.svc.cluster.local
+----
+
+**Storage Issues**
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Check PVC status
+kubectl get pvc -n llamastack
+
+# Describe PVC for events
+kubectl describe pvc llamastack-data-pvc -n llamastack
+
+# Check storage class
+kubectl get storageclass
+----
+
+[#cleanup]
+== Cleanup
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+# Delete all resources
+kubectl delete namespace llamastack
+
+# Or delete specific resources
+kubectl delete -f .
+
+# Verify cleanup
+kubectl get all -n llamastack
+----
+
+[#next-steps]
+== Next Steps
+
+Ready to explore enterprise deployment with OpenShift? Let's continue:
+
+xref:06-openshift.adoc[Continue to OpenShift Deployment →]
